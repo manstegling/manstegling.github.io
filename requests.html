@@ -1,0 +1,17 @@
+<script>
+    function postFindPath(form) {
+        const data = new FormData(form)
+        const value = Object.fromEntries(data.entries());
+        fetch("https://httpbin.org/post", {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(value)
+        }).then(res => {
+            console.log("Request complete! response:", res);
+        });
+    }
+
+    function postRatings() {
+        // TODO
+    }
+</script>
