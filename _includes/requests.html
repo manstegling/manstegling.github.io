@@ -1,17 +1,27 @@
 <script>
-    function postFindPath(form) {
-        const data = new FormData(form)
-        const value = Object.fromEntries(data.entries());
+
+    function postFindMovie() {
+        document.getElementById('searchResult').textContent = "Search result will be shown here!"
+    }
+
+    function postFindPath() {
+        const m1 = document.getElementById('m1').value
+        const m2 = document.getElementById('m2').value
+        const data = {m1: m1, m2: m2}
+        console.log(JSON.stringify(data))
         fetch("https://httpbin.org/post", {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(value)
+            body: JSON.stringify(data)
         }).then(res => {
-            console.log("Request complete! response:", res);
+            res.json().then(str => {
+                document.getElementById('pathResult').textContent = str.data
+                console.log("Request complete! response:", str)
+            })
         });
     }
 
     function postRatings() {
-        // TODO
+        console.log("Upload ratings clicked")
     }
 </script>

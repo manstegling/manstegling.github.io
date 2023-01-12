@@ -1,3 +1,9 @@
+---
+---
+
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/styles.css">
+
 ## LinkBoy
 
 {% include requests.html %}
@@ -5,32 +11,50 @@
 *This page will provide an interface to the LinkBoy movie discovery service*
 
 
-#### Search for a file
-
-<<TODO>>
-
-####Find paths
+#### Search for a movie
 
 <div>
- <form onsubmit="return postFindPath(this)">
-   <div>
-    <label for="m1">Movie 1:</label>
-    <input type="text" name="m1" id="m1"><br>
+  <div class="row">
+    <div class="col-md-12 col-lg-4">
+      <input type="text" class="form-control" id="m0" placeholder="Star Wars">
+    </div>
+    <div class="col-md-2 col-lg-1">
+	  <button type="submit" class="btn btn-primary" id="b0" onclick="postFindMovie()">Search</button>
+	</div>
   </div>
-  <div>
-    <label for="m2">Movie 2:</label>
-    <input type="text" name="m2" id="m2"><br>
-  </div>
-    <input type="submit" name="submit" value="Submit">
- </form>
 </div>
+
+<span id="searchResult"></span>
+
+#### Find paths
+
+<div>
+  <div class="row">
+    <div class="col-md-6 col-lg-2">
+      <input type="text" class="form-control" id="m1" placeholder="Star Wars">
+    </div>
+	<div class="col-md-6 col-lg-2">
+      <input type="text" class="form-control" id="m2" placeholder="The Notebook"><br>
+	</div>
+	<div class="col-md-2 col-lg-1">
+	  <button type="submit" class="btn btn-primary" id="b1" onclick="postFindPath()">Find</button>
+	</div>
+  </div>
+</div>
+
+<span id="pathResult"></span>
 
 #### Tune the algorithm to your personal taste
 
 <div>
   <form onsubmit="return postRatings(this)">
-    <label for="file">Filename:</label>
-    <input type="file" name="file" id="file"><br>
-    <input type="submit" name="submit" value="Submit">
+    <div class="row">
+      <div class="col-md-12 col-lg-4">
+        <input class="form-control" type="file" id="f1">
+      </div>
+      <div class="col-md-2 col-lg-1">
+        <button type="submit" class="btn btn-primary" id="b2">Tune</button>
+      </div>
+    </div>
   </form>
 </div>
