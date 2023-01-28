@@ -81,6 +81,7 @@ html {
     margin-top: 0;
     font-family: 'Megrim', cursive;
     font-size: 3.25rem;
+    line-height: 0.4;
 }
 
 /* Sidebar nav */
