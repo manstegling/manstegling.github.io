@@ -11,7 +11,7 @@ title:            motility.se
 tagline:          'Tech nuggets'
 description:      ''
 url:              http://motility.se
-baseurl:          /
+baseurl:          ''
 
 author:
   name:           'Måns Tegling'
@@ -20,7 +20,7 @@ author:
 paginate:         5
 
 # Custom vars
-version:          2.1.0
+#version:          2.1.0
 
 github:
   repo:           https://github.com/manstegling
