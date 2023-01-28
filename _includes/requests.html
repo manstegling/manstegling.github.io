@@ -1,7 +1,25 @@
 <script>
 
     function postFindMovie() {
-        document.getElementById('searchResult').textContent = "Search result will be shown here!"
+        const term = = document.getElementById('query-input').value
+        const data = { term: term }
+        const button = document.getElementById('query-button')
+        button.disabled = true
+        fetch("https://h9q299yg9k.execute-api.eu-north-1.amazonaws.com/prod/", {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json', 'x-api-key': 'q8eHwB7nxjaRRetfmv9am2MVJpz806D861meoo89' },
+            body: JSON.stringify(data)
+        }).then(res => {
+            res.json().then(str => {
+                document.getElementById('searchResult').textContent = str.data
+                console.log("Request complete! response:", str)
+                button.disabled = false
+            })
+        }).catch(err => {
+            document.getElementById('searchResult').textContent = "internal error"
+            console.log(err)
+        });
+        
     }
 
     function postFindPath() {
@@ -9,6 +27,8 @@
         const m2 = document.getElementById('movieId2').value
         const data = {m1: m1, m2: m2}
         console.log(JSON.stringify(data))
+        const button = document.getElementById('path-button')
+        button.disabled = true
         fetch("https://httpbin.org/post", {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
@@ -17,6 +37,7 @@
             res.json().then(str => {
                 document.getElementById('pathResult').textContent = str.data
                 console.log("Request complete! response:", str)
+                button.disabled = false
             })
         });
     }
