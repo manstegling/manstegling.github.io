@@ -7,11 +7,11 @@ permalink:        pretty
 #relative_permalinks: true
 
 # Setup
-title:            motility.se
+title:            motility
 tagline:          'Tech nuggets'
-description:      ''
+description:      'by M Tegling'
 url:              http://motility.se
-baseurl:          ''
+baseurl:          '/'
 
 author:
   name:           'Måns Tegling'
