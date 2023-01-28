@@ -17,10 +17,10 @@
                 console.log("Request complete! response:", str)
                 const jsonData = JSON.parse(str)
                 const area = document.getElementById('searchResult')
-                area.textContent = ""
+                area.innerHTML = ""
                 for (var i = 0; i < jsonData.movies.length; i++) {
                     var movie = jsonData.movies[i];
-                    area.textContent += movie + "\r\n";
+                    area.innerHTML += movie + "<br>";
                 }
                 button.disabled = false
             })
