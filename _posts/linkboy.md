@@ -1,18 +1,7 @@
 ---
-layout: default
-title: Tech nuggets
+layout: post
+title: Linkboy
 ---
-
-<link rel="stylesheet" href="/assets/css/style.css">
-<link rel="stylesheet" href="/assets/css/styles.css">
-
-## Welcome
-
-_Here at motility.se you can find interesting tech-related items. Enjoy!_
-
-
-<hr class="hr" />
-
 
 ### Linkboy
 
@@ -89,21 +78,3 @@ anonymous and the only reference to your tuned recommendations is a randomly gen
 <hr class="hr" />
 
 <span id="randomKey"></span>
-
-
-### Ziploq
-
-Do you work in Java? Ever wanted to merge and seqence data from multiple sources?
-
-![Ziploq; merging input sources](https://raw.githubusercontent.com/manstegling/ziploq/master/images/ziploq.png)
-
-[Ziploq](https://github.com/manstegling/ziploq) is a lightweight message-synchronization device with ultra-high performance. It lets you quickly merge data from any
-number of data sources reactively, without having to reach for large frameworks such as _Project Reactor_ or _Akka Streams_. It doesn't matter whether the input
-data is ordered or not, the output will always be ordered! When dealing with external systems please note that data transmission delays and disconnections are all
-handled automatically out-of-the-box, too!
-
-Ziploq is built with infinite real-time data sequences in mind, but works just as well for in-memory datasets. This design results in a low memory footprint and a high
-message throughput. Simple, reliable and fast.
-
-
-

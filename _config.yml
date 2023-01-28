@@ -1,4 +1,29 @@
-theme: jekyll-theme-minimal
+ # Dependencies
+markdown:         redcarpet
+highlighter:      pygments
+
+# Permalinks
+permalink:        pretty
+relative_permalinks: true
+
+# Setup
+title:            motility.se
+tagline:          'Tech nuggets'
+description:      ''
+url:              http://motility.se
+baseurl:          /
+
+author:
+  name:           'Måns Tegling'
+  url:            https://github.com/manstegling
+
+paginate:         5
+
+# Custom vars
+version:          2.1.0
+
+github:
+  repo:           https://github.com/manstegling
 
 sass:
   sass_dir:  _sass
