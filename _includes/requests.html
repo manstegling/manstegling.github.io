@@ -7,11 +7,14 @@
         button.disabled = true
         fetch("https://h9q299yg9k.execute-api.eu-north-1.amazonaws.com/prod/", {
             method: "POST",
-            headers: { 'Content-Type': 'application/json', 'x-api-key': 'q8eHwB7nxjaRRetfmv9am2MVJpz806D861meoo89' },
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': 'q8eHwB7nxjaRRetfmv9am2MVJpz806D861meoo89'
+            },
             body: JSON.stringify(data)
         }).then(res => {
             res.json().then(str => {
-                document.getElementById('searchResult').textContent = str.data
+                document.getElementById('searchResult').textContent = str
                 console.log("Request complete! response:", str)
                 button.disabled = false
             })
