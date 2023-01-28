@@ -25,6 +25,8 @@ paginate:         5
 github:
   repo:           https://github.com/manstegling
 
+linkedin:         https://www.linkedin.com/in/m%C3%A5ns-tegling-b20865138/
+
 sass:
   sass_dir:  _sass
   style:     compressed
