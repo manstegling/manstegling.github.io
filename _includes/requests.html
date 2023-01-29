@@ -69,7 +69,7 @@
                 parent.style.display = "block";
 
                 // TODO DISPLAY RESPONSE IN SOME REASONABLE WAY!
-                parent.textContent = str
+                parent.appendChild(document.createElement("pre")).innerHTML = JSON.stringify(jsonData, null, 2);
                 // ^^^^^^^^^^^^^^^^^^^^^
 
                 button.disabled = false
