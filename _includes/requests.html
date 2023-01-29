@@ -46,18 +46,32 @@
     function postFindPath() {
         const m1 = document.getElementById('movieId1').value
         const m2 = document.getElementById('movieId2').value
-        const data = {m1: m1, m2: m2}
+        if (!m1 || !m2) {
+            return;
+        }
+
+        const data = {startId: m1, targetId: m2}
         console.log(JSON.stringify(data))
         const button = document.getElementById('path-button')
         button.disabled = true
-        fetch("https://httpbin.org/post", {
+        fetch("https://v5tamk0gf5.execute-api.eu-north-1.amazonaws.com/prod/", {
             method: "POST",
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': 'q8eHwB7nxjaRRetfmv9am2MVJpz806D861meoo89'
+            },
             body: JSON.stringify(data)
         }).then(res => {
             res.json().then(str => {
-                document.getElementById('pathResult').textContent = str.data
-                console.log("Request complete! response:", str)
+                console.log("Request complete! response:", str);
+                const jsonData = JSON.parse(str);
+                const parent = document.getElementById('pathResult');
+                parent.style.display = "block";
+
+                // TODO DISPLAY RESPONSE IN SOME REASONABLE WAY!
+                parent.textContent = str
+                // ^^^^^^^^^^^^^^^^^^^^^
+
                 button.disabled = false
             })
         });
