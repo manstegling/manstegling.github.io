@@ -27,8 +27,9 @@
             res.json().then(str => {
                 console.log("Request complete! response:", str);
                 const jsonData = JSON.parse(str);
-                document.getElementById('searchResult').style.display = "block";
-                makeUL(jsonData.movies, document.getElementById('searchResultList'));
+                const parent = document.getElementById('searchResult');
+                parent.style.display = "block";
+                makeUL(jsonData.movies, parent);
                 button.disabled = false;
             })
         }).catch(err => {
@@ -65,17 +66,22 @@
     }
 
     function makeUL(array, parent) {
-        // Fill list from top, travserse items in reverse order to maintain internal order
-        for (var i = array.length - 1; i >= 0; i--) {
+
+        const list = document.createElement('li');
+        list.setAttribute("class", "list-group list-group-flush bg-light");
+        parent.prepend(list)
+
+        for (var i = 0; i < array.length; i++) {
             // Create the list item:
             var item = document.createElement('li');
             item.setAttribute("class", "list-group-item py-2 bg-light");
+            item.style.fontSize = "small";
 
             // Set its contents:
             item.appendChild(document.createTextNode(array[i]));
 
             // Add it to the list:
-            parent.prepend(item);
+            list.appendChild(item);
         }
 
         // Finally, return the constructed list:
