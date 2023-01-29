@@ -13,6 +13,9 @@
     }
 
     function postFindMovie(term) {
+        if (!term) {
+            return;
+        }
         const data = { term: term };
         const button = document.getElementById('query-button');
         button.disabled = true;
@@ -38,7 +41,6 @@
             parent.textContent = "internal error";
             console.log(err);
         });
-        
     }
 
     function postFindPath() {
