@@ -1,10 +1,21 @@
 <script>
 
-    function postFindMovie() {
+    function enterFindMovie(field) {
+        if (event.keyCode === 13) {
+            const term = field.value
+            postFindMovie(term)
+        }
+    }
+
+    function findMovie() {
         const term = document.getElementById('query-input').value
-        const data = { term: term }
-        const button = document.getElementById('query-button')
-        button.disabled = true
+        postFindMovie(term)
+    }
+
+    function postFindMovie(term) {
+        const data = { term: term };
+        const button = document.getElementById('query-button');
+        button.disabled = true;
         fetch("https://h9q299yg9k.execute-api.eu-north-1.amazonaws.com/prod/", {
             method: "POST",
             headers: {
@@ -14,19 +25,14 @@
             body: JSON.stringify(data)
         }).then(res => {
             res.json().then(str => {
-                console.log("Request complete! response:", str)
-                const jsonData = JSON.parse(str)
-                const area = document.getElementById('searchResult')
-                area.innerHTML = ""
-                for (var i = 0; i < jsonData.movies.length; i++) {
-                    var movie = jsonData.movies[i];
-                    area.innerHTML += movie + "<br>";
-                }
-                button.disabled = false
+                console.log("Request complete! response:", str);
+                const jsonData = JSON.parse(str);
+                makeUL(jsonData.movies, document.getElementById('searchResult'));
+                button.disabled = false;
             })
         }).catch(err => {
-            document.getElementById('searchResult').textContent = "internal error"
-            console.log(err)
+            document.getElementById('searchResult').textContent = "internal error";
+            console.log(err);
         });
         
     }
@@ -54,4 +60,27 @@
     function postRatings() {
         console.log("Upload ratings clicked")
     }
+
+    function makeUL(array, parent) {
+        // Create the list element:
+        var list = document.createElement('ul');
+        parent.appendChild(new_row);
+        list.setAttribute("class", "list-group list-group-flush");
+
+        for (var i = 0; i < array.length; i++) {
+            // Create the list item:
+            var item = document.createElement('li');
+            item.setAttribute("class", "list-group-item");
+
+            // Set its contents:
+            item.appendChild(document.createTextNode(array[i]));
+
+            // Add it to the list:
+            list.appendChild(item);
+        }
+
+        // Finally, return the constructed list:
+        return list;
+    }
+
 </script>
