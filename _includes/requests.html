@@ -29,7 +29,7 @@
                 const jsonData = JSON.parse(str);
                 const parent = document.getElementById('searchResult');
                 parent.style.display = "block";
-                makeUL(jsonData.movies, parent);
+                makeUL(jsonData.movies, document.getElementById('searchResultList'));
                 button.disabled = false;
             })
         }).catch(err => {
@@ -67,11 +67,11 @@
 
     function makeUL(array, parent) {
 
-        const list = document.createElement('li');
-        list.setAttribute("class", "list-group list-group-flush bg-light");
-        parent.prepend(list)
+        //const list = document.createElement('li');
+        //list.setAttribute("class", "list-group list-group-flush bg-light");
+        //parent.prepend(list)
 
-        for (var i = 0; i < array.length; i++) {
+        for (var i = array.length - 1; i >= 0; i--) {
             // Create the list item:
             var item = document.createElement('li');
             item.setAttribute("class", "list-group-item py-2 bg-light");
@@ -81,11 +81,11 @@
             item.appendChild(document.createTextNode(array[i]));
 
             // Add it to the list:
-            list.appendChild(item);
+            parent.prepend(item);
         }
 
         // Finally, return the constructed list:
-        return list;
+        return parent;
     }
 
 </script>
