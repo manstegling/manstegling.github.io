@@ -2,6 +2,7 @@
 <script>
 
     let selectedId = 0;
+    let selectedBg = "";
 
     function enterFindMovie(field) {
         if (event.keyCode === 13) {
@@ -103,19 +104,28 @@
                     const item = document.getElementById('whliResult');
                     item.style.display = "block";
 
+                    // Clean up if we've already added color
+                    if (selectedBg.startsWith("bg")) {
+                        item.classList.remove(selectedBg);
+                    }
+
                     const pred = parseFloat(jsonData.predictedRating);
                     if (pred < 2.8) {
                         item.classList.add("bg-danger");
                         item.textContent = "No. Just no. (" + pred + ")";
+                        selectedBg = "bg-danger";
                     } else if (pred < 3.2) {
                         item.classList.add("bg-warning");
-                        item.textContent = "Prolly not. Really. (" + pred + ")";
+                        item.textContent = "Nah (" + pred + ")";
+                        selectedBg = "bg-warning";
                     } else if (pred < 3.85) {
                         item.classList.add("bg-info");
-                        item.textContent = "Well, try it. (" + pred + ")";
+                        item.textContent = "Let's try (" + pred + ")";
+                        selectedBg = "bg-info";
                     } else {
                         item.classList.add("bg-success");
-                        item.textContent = "This is fire! (" + pred + ")";
+                        item.textContent = "Straight fire! (" + pred + ")";
+                        selectedBg = "bg-success";
                     } 
 
                     button.disabled = false;
