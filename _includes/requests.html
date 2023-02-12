@@ -1,4 +1,7 @@
+<script src="{{ base.url | prepend: site.url }}/_includes/lz-string.min.js"></script>
 <script>
+
+    let selectedId = 0;
 
     function enterFindMovie(field) {
         if (event.keyCode === 13) {
@@ -69,7 +72,10 @@
                 parent.style.display = "block";
 
                 // TODO DISPLAY RESPONSE IN SOME REASONABLE WAY!
-                parent.appendChild(document.createElement("pre")).innerHTML = JSON.stringify(jsonData, null, 2);
+                const element = document.createElement("pre");
+                element.fontSize = "small";
+                parent.prepend(element);
+                element.innerHTML = JSON.stringify(jsonData, null, 2);
                 // ^^^^^^^^^^^^^^^^^^^^^
 
                 button.disabled = false
@@ -77,7 +83,39 @@
         });
     }
 
+    function willHeLoveIt() {
+        if (selectedId > 0) {
+            const data = { movieId: selectedId }
+            console.log(JSON.stringify(data))
+            const button = document.getElementById('whli-button')
+            button.disabled = true
+            fetch("https://03zi1oasd3.execute-api.eu-north-1.amazonaws.com/prod/", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': 'q8eHwB7nxjaRRetfmv9am2MVJpz806D861meoo89'
+                },
+                body: JSON.stringify(data)
+            }).then(res => {
+                res.json().then(str => {
+                    console.log("Request complete! response:", str);
+                    const jsonData = JSON.parse(str);
+                    const item = document.getElementById('whliResult');
+                    item.style.display = "block";
+                    item.textContent = jsonData.predictedRating;
+                    button.disabled = false;
+                })
+            });
+        }
+    }
+
     function postRatings() {
+
+        const file = document.getElementById('file-select').value
+
+        const button = document.getElementById('query-button');
+        button.disabled = true;
+
         console.log("Upload ratings clicked")
     }
 
@@ -89,10 +127,17 @@
 
         for (var i = array.length - 1; i >= 0; i--) {
             // Create the list item:
-            var item = document.createElement('li');
-            item.setAttribute("class", "list-group-item py-2 bg-light");
+            var item = document.createElement('button');
+            item.setAttribute("class", "list-group-item list-group-item-action py-2 bg-light");
+            item.setAttribute("type", "button");
             item.style.fontSize = "small";
-
+            if (i < array.length - 1) {
+                const whliId = array[i].split("ID=")[1];
+                item.value = whliId;
+                item.onclick = function () { setWhliId(whliId) };
+            } else {
+                item.disabled = true;
+            }
             // Set its contents:
             item.appendChild(document.createTextNode(array[i]));
 
@@ -102,6 +147,12 @@
 
         // Finally, return the constructed list:
         return parent;
+    }
+
+    function setWhliId(whliId) {
+        selectedId = whliId;
+        const button = document.getElementById('whli-button');
+        button.style.display = "block";
     }
 
 </script>
