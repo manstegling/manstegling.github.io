@@ -102,7 +102,22 @@
                     const jsonData = JSON.parse(str);
                     const item = document.getElementById('whliResult');
                     item.style.display = "block";
-                    item.textContent = jsonData.predictedRating;
+
+                    const pred = parseFloat(jsonData.predictedRating);
+                    if (pred < 2.8) {
+                        item.classList.add("bg-danger");
+                        item.textContent = "No. Just no. (" + pred + ")";
+                    } else if (pred < 3.2) {
+                        item.classList.add("bg-warning");
+                        item.textContent = "Prolly not. Really. (" + pred + ")";
+                    } else if (pred < 3.85) {
+                        item.classList.add("bg-info");
+                        item.textContent = "Well, try it. (" + pred + ")";
+                    } else {
+                        item.classList.add("bg-success");
+                        item.textContent = "This is fire! (" + pred + ")";
+                    } 
+
                     button.disabled = false;
                 })
             });
