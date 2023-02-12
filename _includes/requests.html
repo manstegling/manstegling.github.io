@@ -146,12 +146,12 @@
             item.setAttribute("class", "list-group-item list-group-item-action py-2 bg-light");
             item.setAttribute("type", "button");
             item.style.fontSize = "small";
-            if (i < array.length - 1) {
+            if (i == array.length - 1 && array[i].includes("[...] truncated") {
+                item.disabled = true;
+            } else {
                 const whliId = array[i].split("ID=")[1];
                 item.value = whliId;
                 item.onclick = function () { setWhliId(whliId) };
-            } else {
-                item.disabled = true;
             }
             // Set its contents:
             item.appendChild(document.createTextNode(array[i]));
