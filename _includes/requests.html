@@ -102,7 +102,6 @@
                     console.log("Request complete! response:", str);
                     const jsonData = JSON.parse(str);
                     const item = document.getElementById('whliResult');
-                    item.style.display = "block";
 
                     // Clean up if we've already added color
                     if (selectedBg.startsWith("bg")) {
@@ -128,6 +127,7 @@
                         selectedBg = "bg-success";
                     } 
 
+                    item.style.display = "block";
                     button.disabled = false;
                 })
             });
@@ -153,7 +153,7 @@
         for (var i = array.length - 1; i >= 0; i--) {
             // Create the list item:
             var item = document.createElement('button');
-            item.setAttribute("class", "list-group-item list-group-item-action py-2 bg-light");
+            item.setAttribute("class", "list-group-item list-group-item-action py-2");
             item.setAttribute("type", "button");
             item.style.fontSize = "small";
             if (i == array.length - 1 && array[i].includes("[...] truncated")) {
@@ -178,6 +178,8 @@
         selectedId = whliId;
         const button = document.getElementById('whli-button');
         button.style.display = "block";
+        const result = document.getElementById('whliResult');
+        result.style.display = "none";
     }
 
 </script>
