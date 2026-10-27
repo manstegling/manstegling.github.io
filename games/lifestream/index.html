@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#081319"><title>Lifestream · A world worth tending</title>
+<style>
+:root{color-scheme:dark;--bg:#081319;--panel:#101f25;--line:#263a3f;--ink:#e5efe7;--dim:#90aaa3;--mint:#8ee6ba;--gold:#f6ce91;--violet:#c69aec}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 45% 30%,#142b2b 0,#0b1920 45%,#081319 80%);color:var(--ink);font:14px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}button,input{font:inherit}button{cursor:pointer;border:1px solid #3a5354;border-radius:9px;background:#12282b;color:var(--ink);padding:9px 14px;transition:background .2s,opacity .2s}button:hover:not(:disabled){background:#24413d}button:disabled{cursor:default;opacity:.4}button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--gold);outline-offset:4px}.primary{background:#a2e4bb;color:#0b2920;border-color:#a2e4bb;font-weight:650}.primary:hover:not(:disabled){background:#c5f6d7}.shell{max-width:1180px;margin:auto;padding:27px 26px 22px}header{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:24px}.eyebrow{font-size:10px;letter-spacing:2.6px;color:var(--mint);text-transform:uppercase;margin-bottom:5px}h1{font-weight:450;font-size:31px;letter-spacing:-1px;margin:0}.tagline{font-size:12px;color:var(--dim);margin-left:12px;letter-spacing:0}nav{display:flex;gap:7px;align-items:center}nav button{font-size:12px}.phase-line{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--dim);gap:12px}.phase-name{color:var(--gold);font-weight:550}.timeline{display:flex;gap:5px;margin-top:10px;height:3px;overflow:hidden}.timeline>div{background:#293e40;position:relative;overflow:hidden;border-radius:3px}.timeline>div:nth-child(1){flex:45}.timeline>div:nth-child(2){flex:210}.timeline>div:nth-child(3){flex:30}.timeline i{display:block;height:100%;width:0;background:var(--gold)}.timeline>div:nth-child(2) i{background:var(--violet)}.timeline>div:nth-child(3) i{background:var(--mint)}.hud{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:17px 0}.metric{border:1px solid var(--line);background:#101f25ba;border-radius:11px;padding:13px 18px}.metric label{font-size:10px;text-transform:uppercase;letter-spacing:1.3px;color:var(--dim)}.metric .value{font-size:28px;letter-spacing:-1px;line-height:1.3;font-variant-numeric:tabular-nums}.metric small{font-size:10px;color:#77948d}.board{display:grid;grid-template-columns:minmax(0,1fr) 238px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#0b171d}.stage{position:relative;min-height:590px;background:radial-gradient(ellipse at center,#11272a 0,#0d1d23 50%,#0a151b 100%);touch-action:manipulation}.stage canvas{position:absolute;width:100%;height:100%;inset:0;display:block}.stage-caption{position:absolute;top:18px;left:21px;right:21px;display:flex;justify-content:space-between;font-size:10px;letter-spacing:1px;color:#8fa89e;pointer-events:none}.stage-bottom{position:absolute;bottom:17px;left:20px;right:20px;text-align:center;color:#7b9790;font-size:11px;pointer-events:none}.stage-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;max-width:210px;width:40%;pointer-events:none}.stage-center strong{font-size:17px;font-weight:450;letter-spacing:.2px;color:#cee3d5}.stage-center p{font-size:11px;line-height:1.7;color:#8eaaa0;margin:8px 0 0}.stage-center .symbol{color:#b3ddbb;font-size:23px;font-weight:300;margin-bottom:9px}.sidebar{border-left:1px solid var(--line);padding:23px 19px;background:#101f24;display:flex;flex-direction:column;gap:21px}.label{font-size:10px;letter-spacing:1.7px;color:var(--dim);text-transform:uppercase;margin-bottom:10px}.seed-dots{display:flex;gap:10px;margin:12px 0}.seed-dot{width:17px;height:24px;transform:rotate(28deg);border-radius:70% 30% 65% 35%;border:1px solid #405b52;background:#1d332e;transition:background .4s,box-shadow .4s}.seed-dot.ready{background:#b6e3b7;border-color:#d1efbd;box-shadow:0 0 16px #8ddaab22}.seed-recharge{height:2px;background:#2a413b;margin:12px 0 7px;border-radius:2px;overflow:hidden}.seed-recharge i{display:block;height:100%;background:#b8e3b4;transition:width .15s}.small{font-size:11px;color:var(--dim);line-height:1.7;margin:0}.place-controls{display:flex;gap:6px;margin-top:12px}.place-controls button{padding:8px 10px}.place-controls .primary{flex:1}.supply{border-top:1px solid var(--line);padding-top:18px}.supply b{color:#d6e7da;font-size:12px;font-weight:500}.supply .row{display:flex;justify-content:space-between;gap:6px;font-size:11px;color:#92aaa0;margin-top:8px}.supply .row strong{font-weight:500;color:#d0e3d4}.legend{display:grid;gap:8px;font-size:10px;color:#92aaa0;margin-top:auto}.legend span{display:flex;align-items:center;gap:8px}.legend i{display:block;width:7px;height:7px;border-radius:50%;background:var(--mint)}.legend i.empty{background:transparent;border:1px solid var(--gold)}.legend i.embryo{background:var(--gold)}.legend i.sink{background:#c493e4}.legend i.warning{background:transparent;border:1px dashed #c493e4}.legend i.tomb{border-radius:2px;background:#788c96}.under{display:flex;justify-content:space-between;gap:15px;margin-top:13px;font-size:10px;color:#738f87}.toast{position:absolute;bottom:45px;left:50%;transform:translateX(-50%);background:#172e31ed;border:1px solid #52675c;border-radius:8px;padding:9px 13px;font-size:12px;color:#e4ebd6;opacity:0;pointer-events:none;transition:opacity .2s;width:max-content;max-width:85%;text-align:center}.toast.visible{opacity:1}.overlay{position:fixed;inset:0;background:#061013b8;backdrop-filter:blur(11px);display:grid;place-items:center;z-index:30;padding:22px;overflow:auto}.overlay[hidden]{display:none!important}.card{width:min(490px,100%);padding:33px;border:1px solid #43594e;border-radius:18px;background:linear-gradient(140deg,#1a3030,#101f28);box-shadow:0 25px 90px #0005}.card h2{font-size:29px;letter-spacing:-.7px;font-weight:450;margin:7px 0 15px}.card p{font-size:13px;color:#a8c0b3;line-height:1.8}.card b{font-weight:550;color:#e1eadc}.card .primary{padding:12px 20px}.card .actions{display:flex;gap:8px;margin-top:23px;flex-wrap:wrap}.seed-input{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:22px;font-size:12px;color:#a1b9ad}.seed-input input{background:#0d1f23;border:1px solid #4c6256;border-radius:7px;width:110px;color:#dce6d5;padding:7px 9px}.intro-steps{display:grid;gap:10px;border-top:1px solid #344b42;border-bottom:1px solid #344b42;padding:16px 0;margin-top:20px;font-size:12px;line-height:1.7;color:#a8bfb2}.intro-steps b{color:#e1e9d6;font-weight:500}.result-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:22px 0}.result-stat{background:#0a1b1f;border:1px solid #3c5449;border-radius:9px;padding:16px}.result-stat label{font-size:10px;color:#b3c7b8}.result-stat strong{display:block;font-size:34px;color:#e4edda;font-weight:450;margin:6px 0}.result-stat small{font-size:10px;color:#7f9e8b}.results-note{font-size:11px!important}.help-grid{display:grid;gap:11px}.help-grid p{margin:0}.art-exit{display:none}.stage.art-view{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;height:100dvh!important;min-height:0!important;z-index:60}.art-view .stage-caption,.art-view .stage-bottom,.art-view .stage-center,.art-view .toast{display:none}.art-view .art-exit{display:block;position:absolute;top:max(20px,env(safe-area-inset-top));right:max(20px,env(safe-area-inset-right));z-index:2;opacity:0;pointer-events:none;transition:opacity .3s;background:#102329bb}.art-view.art-ui .art-exit,.art-view .art-exit:focus-visible{opacity:1;pointer-events:auto}.art-view:not(.art-ui){cursor:none}body.art-mode{overflow:hidden}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}[hidden]{display:none!important}
+@media(max-width:850px){.shell{padding:19px 16px}.tagline{display:block;margin:3px 0 0}header{margin-bottom:19px}.board{grid-template-columns:1fr 207px}.stage{min-height:530px}.sidebar{padding:19px 15px;gap:19px}.stage-center{width:45%}.stage-center strong{font-size:15px}}
+@media(max-width:650px){.shell{padding:16px 12px}header{gap:8px;align-items:flex-start;margin-bottom:18px}h1{font-size:27px}.eyebrow{font-size:8px;letter-spacing:1.8px}.tagline{font-size:10px}nav{gap:5px;flex-wrap:wrap;justify-content:flex-end;max-width:180px}nav button{font-size:11px;padding:7px 9px}.hud{gap:7px;margin:13px 0}.metric{padding:10px 11px}.metric label{font-size:8px;letter-spacing:.7px}.metric .value{font-size:24px}.metric small{font-size:9px}.board{grid-template-columns:1fr}.stage{min-height:405px;height:108vw;max-height:540px}.stage-caption{left:14px;right:14px;font-size:9px}.stage-center{width:43%}.stage-center strong{font-size:15px}.stage-center p{font-size:10px}.stage-bottom{font-size:10px;bottom:11px}.sidebar{border-left:0;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;padding:15px;gap:16px}.sidebar .label{font-size:9px;margin-bottom:7px}.seed-dots{margin:9px 0}.seed-dot{height:18px;width:13px}.seed-recharge{margin:8px 0 4px}.supply{border:0;padding-top:0}.legend{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:9px 12px;font-size:9px}.small{font-size:10px}.place-controls{margin-top:9px}.place-controls button{padding:7px 9px}.under{font-size:9px;line-height:1.6}.phase-line{font-size:10px}.card{padding:25px}.card h2{font-size:26px}.result-stat{padding:12px}.result-stat strong{font-size:30px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}.overlay{backdrop-filter:none}}
+
+body{--drain:0;background:#0b1014}body::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(ellipse at 45% 30%,#142b2b 0,#0b1920 45%,#081319 80%);filter:grayscale(var(--drain));pointer-events:none}
+header,.phase-line,.timeline,.hud,.sidebar,.under,.overlay .card,.stage-caption,.stage-center,.stage-bottom,.toast,#world{filter:grayscale(var(--drain))}
+.stage{background:none}.stage::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,#11272a 0,#0d1d23 50%,#0a151b 100%);filter:grayscale(var(--drain));pointer-events:none}
+#omens{z-index:1}.stage-caption,.stage-center,.stage-bottom{z-index:2}
+</style></head><body><main class="shell">
+<header><div><div class="eyebrow">A world worth tending</div><h1>Lifestream <span class="tagline">Begin a life. Follow the current.</span></h1></div><nav aria-label="Game controls"><button id="help">How to play</button><button id="pause" disabled>Pause</button><button id="art" aria-pressed="false">Art view</button></nav></header>
+<div class="phase-line"><span><b class="phase-name" id="phase">The disturbance</b> <span id="phaseHint">A world worth protecting.</span></span><span id="phaseTime">Place the first life to begin</span></div><div class="timeline" aria-label="World journey progress"><div style="flex:1"><i id="journeyProgress"></i></div></div>
+<div class="hud"><div class="metric"><label>Energy created</label><div class="value" id="energy">0.0</div><small>New energy made by living people</small></div><div class="metric"><label>Completed lives</label><div class="value" id="completed">0</div><small id="population">No lives begun yet</small></div><div class="metric"><label>Until gathering</label><div class="value" id="time">3:54</div><small id="runSeed">World 73</small></div></div>
+<div class="board"><section class="stage" id="stage" aria-label="World and circulating soul cloud"><canvas id="world" aria-label="Tap around the inner world ring to plant. Unlimited seeds; failed embryos lose their absorbed energy. Violet sinks pull in and destroy cloud energy."></canvas><canvas id="omens" aria-hidden="true" style="pointer-events:none"></canvas><div class="stage-caption"><span id="stageStatus">Awaiting the first life</span><span>CLOCKWISE CURRENT ↻</span></div><div class="stage-center"><div class="symbol" id="centerSymbol">✧</div><strong id="centerTitle">A world begins</strong><p id="centerText">Small lives can start<br>something lasting.</p></div><div class="stage-bottom" id="stageHint">Tap the inner ring to begin a life.</div><div class="toast" id="toast" role="status"></div><button id="exitArt" class="art-exit">Exit art view</button></section>
+<aside class="sidebar"><div><div class="label">Seeds of life</div><p style="font-size:28px;color:var(--gold);margin:0" aria-label="Unlimited seeds">∞</p><p class="small" id="seedStatus">Unlimited seeds · finite energy</p><div class="place-controls"><button id="left" aria-label="Move planting location anticlockwise">←</button><button id="plant" class="primary" disabled>Plant</button><button id="right" aria-label="Move planting location clockwise">→</button></div></div>
+<div class="supply"><div class="label">Selected location</div><b id="location">Near the dawn stream</b><div class="row"><span>Nearby cloud</span><strong id="localEnergy">0.0</strong></div><div class="row"><span>Living support</span><strong id="support">0</strong></div><div class="row"><span>Possible growth</span><strong id="growth">0.34/s</strong></div><p class="small" style="margin-top:13px" id="embryoStatus">People help new souls gather. Open space gives each life more room to grow.</p></div>
+<div class="legend"><span><i class="empty"></i>Gathering a soul</span><span><i class="embryo"></i>Souled embryo</span><span><i></i>Living person</span><span><i class="warning"></i>Sink warning</span><span><i class="sink"></i>Active sink</span><span><i class="tomb"></i>Tombstone</span></div></aside></div>
+<div class="under"><span id="balance">Pool 120.0 · sinks lost 0.0 · embryos lost 0.0</span><span>Space to pause · ← → then Enter to plant · F for art</span></div>
+</main>
+<section class="overlay" id="welcome" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle"><div class="card"><div class="eyebrow">One world. One disturbance.</div><h2 id="welcomeTitle">Tend the lifestream.</h2><p>Begin lives around the world ring. Follow the moving cloud, shelter energy through living people, and help the world endure the disturbance.</p><div class="intro-steps"><div><b>Plant with care.</b> An embryo needs 12 energy within 6 seconds. Seeds are unlimited. Failed embryos destroy all energy they absorbed.</div><div><b>Read the current.</b> Crowded places offer support. Sparse places give successful lives more room to grow.</div><div><b>Weather the disturbance.</b> Violet warnings precede temporary sinks. A final ring of sinks tests the world before every remaining person is gathered in light.</div></div><div class="seed-input"><label for="worldSeed">World seed</label><input id="worldSeed" type="number" min="0" max="4294967295" step="1" value="73"></div><div class="actions"><button id="begin" class="primary">Choose the first life</button></div><p style="font-size:10px;margin-bottom:0">Create as much new energy as you can. Completed lives are a secondary result. Pause whenever you like.</p></div></section>
+<section class="overlay" id="helpOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="card"><div class="eyebrow">A few quiet rules</div><h2 id="helpTitle">Watch where life can grow.</h2><div class="help-grid"><p><b>Tap the inner ring</b> to plant. Move the pointer, or use the arrow controls, to inspect the supply at a location. Planting closes six seconds before gathering.</p><p><b>Souls fill gradually.</b> Embryos absorb nearby energy until they hold 12. The center fills as energy arrives; the outer arc shows time left. A filled embryo still develops for six seconds. Failed embryos destroy what they absorbed. Planting too many can make all of them fail.</p><p><b>Space enriches life.</b> People create more energy when fewer others share their surroundings. Their glow reflects that growth; everyone still has a finite lifetime.</p><p><b>Violet means a sink.</b> Dashed countdowns warn of arrival. Color drains in the final moment before activation. A flash marks activation; the black disk consumes cloud energy and the violet arc shows time left. The cloud moves clockwise, faster near the outside.</p><p><b>After the final ring, calm returns.</b> The remaining people rise into the cloud, keep their remaining energy, and count as completed lives. Failed embryos do not count.</p><p><b>Your time is yours.</b> Space pauses; switching tabs pauses automatically. Art view hides the interface and continues at the current pace; Esc, F, or double-click exits.</p></div><div class="actions"><button id="closeHelp" class="primary">Back to the world</button></div></div></section>
+<section class="overlay" id="results" hidden role="dialog" aria-modal="true" aria-labelledby="resultsTitle"><div class="card"><div class="eyebrow">The world rests</div><h2 id="resultsTitle">What you helped continue.</h2><p id="resultsIntro">Every remaining life has joined the cloud in light.</p><div class="result-pair"><div class="result-stat"><label>Energy created</label><strong id="resultEnergy">0.0</strong><small id="bestEnergy">Personal best: 0.0</small></div><div class="result-stat"><label>Completed lives</label><strong id="resultLives">0</strong><small id="bestLives">Personal best: 0</small></div></div><p class="results-note" id="resultDetail"></p><p class="results-note" id="resultLedger"></p><div class="actions"><button id="replay" class="primary">Try this world again</button><button id="newWorld">Another world</button></div></div></section>
+<div id="announcements" class="sr-only" role="status" aria-live="polite"></div>
+<script>
+const TAU=Math.PI*2, N=144, R=8, DT=1/60, CAP=250;
+const CONFIG=Object.freeze({sunrise:10,disturbance:210,sunset:14,initial:120,chunk:12,maturity:6,returnRate:.62,growthMin:.12,growthMax:.34,crowdingScale:1.4,neighbourhood:.24,intakeRate:3,absorptionRate:6,warning:8,current:1.35,diffusion:.18,sinkPull:.78,sinkRadius:.075,bossCount:16,bossInterval:.1,bossDuration:7,bossFraction:.46});
+const TOTAL_TIME=CONFIG.sunrise+CONFIG.disturbance+CONFIG.sunset;
+const DEFAULTS={chunk:CONFIG.chunk,returnRate:CONFIG.returnRate,attraction:1,gravity:.36,diffusion:CONFIG.diffusion,maturity:CONFIG.maturity,sinkPull:CONFIG.sinkPull};
+const wrap=a=>((a%TAU)+TAU)%TAU;
+const delta=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
+const sum=a=>a.reduce((s,x)=>s+x,0);
+const clamp=(v,l,h)=>Math.max(l,Math.min(h,v));
+class Model {
+ constructor(seed=73,initial=CONFIG.initial,params={}) {
+  this.p={...DEFAULTS,...params};this.rng=seed>>>0;this.initial=initial;this.t=0;this.created=0;this.destroyed=0;this.failedEnergy=0;this.completed=0;this.gathered=0;this.gatheredEnergy=0;this.finished=false;this.endingAt=null;this.actions=[];this.born=0;this.deaths=0;this.embryoDeaths=0;this.id=0;
+  this.q=new Float64Array(N*R);this.next=new Float64Array(N*R);this.well=new Float64Array(N);this.peak=new Float64Array(N);this.angular=new Float64Array(N);
+  this.sinks=[];this.sinkSchedule=[];this.hazardRng=(seed^0xA341316C)>>>0;this.buildSchedule();this.sinkAngular=new Float64Array(N*R);this.sinkRadial=new Float64Array(N*R);
+  this.lives=[];this.tombs=[];this.pulses=[];this.history=[];this.nextSample=0;
+  let total=0;
+  for(let j=0;j<R;j++)for(let i=0;i<N;i++){const angle=i/N*TAU,patch=Math.exp(2.3*Math.cos(angle-.45))+.72*Math.exp(2.1*Math.cos(angle-3.7));const w=Math.exp((j-(R-1))*1.4)*(.10+patch);this.q[j*N+i]=w;total+=w;}
+  for(let k=0;k<this.q.length;k++)this.q[k]*=initial/total;
+  this.record();
+ }
+ random(){let t=this.rng+=0x6D2B79F5;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);this.rng>>>=0;return((t^(t>>>14))>>>0)/4294967296;}
+ addEmbryo(theta=undefined){
+  if(this.lives.length>=CAP)return null;
+  const life={id:++this.id,state:'waiting',theta:theta===undefined?this.random()*TAU:wrap(theta),age:0,soul:0,chunk:this.p.chunk,maturity:this.p.maturity,personAge:0,velocity:0,target:0,nextTurn:0,acquired:null};
+  life.intake=0;life.created=0;life.growth=CONFIG.growthMax;life.neighbours=0;this.lives.push(life);return life;
+ }
+ hazardRandom(){let t=this.hazardRng+=0x6D2B79F5;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);this.hazardRng>>>=0;return((t^(t>>>14))>>>0)/4294967296;}
+ buildSchedule(){
+  let warningAt=CONFIG.sunrise;
+  const bossEnd=CONFIG.sunrise+CONFIG.disturbance,bossStart=bossEnd-CONFIG.bossDuration;
+  const stop=bossStart-CONFIG.warning;
+  while(warningAt+CONFIG.warning+18<stop){
+   const progress=(warningAt-CONFIG.sunrise)/CONFIG.disturbance;
+   const duration=18+this.hazardRandom()*9;
+   if(warningAt+CONFIG.warning+duration>stop)break;
+   let theta=0,best=-1;
+   for(let attempt=0;attempt<10;attempt++){
+    const candidate=this.hazardRandom()*TAU;
+    const near=this.sinkSchedule.filter(x=>x.end>warningAt);
+    const distance=near.length?Math.min(...near.map(x=>Math.abs(delta(candidate,x.theta)))):Math.PI;
+    if(distance>best){best=distance;theta=candidate;}if(distance>.6)break;
+   }
+   const fraction=.21+.17*this.hazardRandom();
+   this.sinkSchedule.push({id:this.sinkSchedule.length+1,theta,fraction,layer:fraction*(R+1)-1,warningAt,start:warningAt+CONFIG.warning,end:warningAt+CONFIG.warning+duration,duration,destroyed:0});
+   warningAt+=(29-17*progress)*(.84+.32*this.hazardRandom());
+  }
+  for(let i=0;i<CONFIG.bossCount;i++){
+   const fraction=CONFIG.bossFraction;
+   this.sinkSchedule.push({id:this.sinkSchedule.length+1,boss:true,theta:wrap(-i/CONFIG.bossCount*TAU),fraction,layer:fraction*(R+1)-1,warningAt:stop+i*CONFIG.bossInterval,start:bossStart,end:bossEnd,duration:CONFIG.bossDuration,destroyed:0});
+  }
+ }
+ phase(){return this.t<CONFIG.sunrise?'Sunrise':this.t<CONFIG.sunrise+CONFIG.disturbance?'Disturbance':this.t<TOTAL_TIME?'Sunset':'Gathering';}
+ canPlant(){return !this.finished&&this.endingAt===null&&this.t<TOTAL_TIME-CONFIG.maturity-1e-8&&this.lives.length<CAP;}
+ plant(theta){if(!this.canPlant())return null;const e=this.addEmbryo(theta);if(e){this.actions.push({t:this.t,theta:e.theta});}return e;}
+ warnings(){return this.sinkSchedule.filter(s=>this.t>=s.warningAt&&this.t<s.start);}
+ updateSinks(){
+  const active=this.sinkSchedule.filter(s=>this.t>=s.start&&this.t<s.end);
+  if(active.length!==this.sinks.length||active.some((s,i)=>s!==this.sinks[i])){this.sinks=active;this.cacheSinkForces();}
+ }
+ neighbourhoodAt(theta,excluded=null){let count=0;for(const other of this.lives)if(other.state==='person'&&other.id!==excluded){const d=delta(other.theta,theta)/CONFIG.neighbourhood;count+=Math.exp(-.5*d*d);}return count;}
+ growthAt(theta,excluded=null){return CONFIG.growthMin+(CONFIG.growthMax-CONFIG.growthMin)/(1+this.neighbourhoodAt(theta,excluded)/CONFIG.crowdingScale);}
+ localSupply(theta){const mid=Math.round(wrap(theta)/TAU*N);let amount=0;for(let j=0;j<2;j++)for(let off=-4;off<=4;off++){const k=j*N+(mid+off+N)%N;if(!this.blockedIntake(theta,k))amount+=this.q[k];}return amount;}
+ gather(){
+  if(this.endingAt!==null)return;
+  this.t=TOTAL_TIME;this.endingAt=this.t;this.sinks=[];this.cacheSinkForces();
+  this.gathering=this.lives.map(e=>({theta:e.theta,energy:e.soul,person:e.state==='person'}));
+  for(const e of this.lives){if(e.state==='person'){this.deposit(e.theta,e.soul);this.completed++;this.gathered++;this.gatheredEnergy+=e.soul;}else{this.embryoDeaths++;this.failedEnergy+=e.soul;}e.soul=0;}
+  this.lives=[];this.record();
+ }
+ cacheSinkForces(){
+  this.sinkAngular.fill(0);this.sinkRadial.fill(0);
+  // Static sink positions: cache their unit-strength field only when count changes.
+  for(const sink of this.sinks)for(let j=0;j<R;j++)for(let i=0;i<N;i++){
+   const k=j*N+i,d=delta(sink.theta,i/N*TAU),radial=sink.layer-(j+.5);
+   const angularWeight=Math.exp(-.5*((d/.24)**2+((sink.layer-j)/3)**2));
+   const radialWeight=Math.exp(-.5*((d/.24)**2+(radial/3)**2));
+   this.sinkAngular[k]+=14*angularWeight*d/.24;
+   this.sinkRadial[k]+=18*radialWeight*radial/3;
+  }
+ }
+ sinkPosition(sink){const r=.65+.35*(sink.fraction??((sink.layer+1)/(R+1)));return{x:Math.sin(sink.theta)*r,y:-Math.cos(sink.theta)*r};}
+ cellPosition(k){const r=.65+.35*(Math.floor(k/N)+1)/(R+1),a=(k%N)/N*TAU;return{x:Math.sin(a)*r,y:-Math.cos(a)*r};}
+ blockedIntake(theta,k){
+  const a={x:Math.sin(theta)*.65,y:-Math.cos(theta)*.65},b=this.cellPosition(k),dx=b.x-a.x,dy=b.y-a.y,len=dx*dx+dy*dy;
+  return this.sinks.some(sink=>{const c=this.sinkPosition(sink),f=len?clamp(((c.x-a.x)*dx+(c.y-a.y)*dy)/len,0,1):0;return (a.x+f*dx-c.x)**2+(a.y+f*dy-c.y)**2<=CONFIG.sinkRadius**2;});
+ }
+ absorbSinks(){
+  for(const sink of this.sinks){
+   if(!sink.captureCells){const c=this.sinkPosition(sink);sink.captureCells=[];for(let k=0;k<this.q.length;k++){const p=this.cellPosition(k);if((p.x-c.x)**2+(p.y-c.y)**2<=CONFIG.sinkRadius**2)sink.captureCells.push(k);}}
+   for(const k of sink.captureCells){const energy=this.q[k];this.q[k]=0;this.destroyed+=energy;sink.destroyed+=energy;}
+  }
+ }
+ fieldStep(dt){
+  this.well.fill(0);this.peak.fill(0);this.angular.fill(0);
+  const sigma=.19;
+  for(const e of this.lives)if(e.state==='waiting'){
+   const mid=Math.round(e.theta/TAU*N), reach=15;
+   for(let off=-reach;off<=reach;off++){
+    const i=(mid+off+N)%N,d=delta(e.theta,i/N*TAU),w=Math.exp(-.5*(d/sigma)**2);
+    this.well[i]+=w;this.peak[i]=Math.max(this.peak[i],w);this.angular[i]+=w*d/sigma;
+   }
+  }
+  for(let i=0;i<N;i++){
+   const weight=this.well[i];
+   this.well[i]=1-Math.exp(-1.9*this.peak[i]);
+   this.angular[i]=weight?10*this.p.attraction*this.angular[i]/weight*this.well[i]:0;
+  }
+  this.next.set(this.q);
+  // Conservative upwind drift plus symmetric diffusion. DT satisfies the
+  // outgoing-flux bound at every allowed control setting; no mass clipping.
+  const diff=this.p.diffusion*.65;
+  for(let j=0;j<R;j++)for(let i=0;i<N;i++){
+   const a=j*N+i,b=j*N+(i+1)%N;
+   const reach=.20+.80*Math.exp(-j/2.1),current=CONFIG.current*(j/(R-1))**2;
+   const v=clamp(current+reach*(this.angular[i]+this.angular[(i+1)%N])*.5+this.p.sinkPull*(this.sinkAngular[a]+this.sinkAngular[b])*.5,-12,12);
+   const flux=dt*(diff*(this.q[a]-this.q[b])+v*(v>=0?this.q[a]:this.q[b]));
+   this.next[a]-=flux;this.next[b]+=flux;
+   if(j<R-1){
+    const c=a+N,reach=.20+.80*Math.exp(-(j+.5)/2.1),vr=clamp(2.5*this.p.gravity-13*reach*this.p.attraction*this.well[i]+this.p.sinkPull*this.sinkRadial[a],-12,12);
+    const radial=dt*(diff*(this.q[a]-this.q[c])+vr*(vr>=0?this.q[a]:this.q[c]));
+    this.next[a]-=radial;this.next[c]+=radial;
+   }
+  }
+  const swap=this.q;this.q=this.next;this.next=swap;
+ }
+ absorbEmbryos(dt){
+  // Simultaneous cell sharing: neither array order nor embryo count can
+  // multiply a cell's available intake flux. Unused shares remain in the cloud.
+  const demand=new Uint16Array(N*2),requests=[];
+  for(const e of this.lives)if(e.state==='waiting'&&e.age<=e.maturity+1e-9){
+   const cells=[],mid=Math.round(e.theta/TAU*N);
+   for(let j=0;j<2;j++)for(let off=-4;off<=4;off++){
+    const k=j*N+(mid+off+N)%N;if(!this.blockedIntake(e.theta,k)){cells.push(k);demand[k]++;}
+   }
+   requests.push({e,cells});
+  }
+  const flux=1-Math.exp(-CONFIG.absorptionRate*dt),removed=new Float64Array(N*2);
+  for(const {e,cells} of requests){
+   let available=0;for(const k of cells)available+=this.q[k]*flux/demand[k];
+   const take=Math.min(available,CONFIG.intakeRate*dt,e.chunk-e.soul);
+   const scale=available>0?take/available:0;
+   for(const k of cells)removed[k]+=this.q[k]*flux/demand[k]*scale;
+   e.soul+=take;e.intake+=(take/dt-e.intake)*(1-Math.exp(-dt/0.6));
+   if(e.soul>=e.chunk-1e-10){e.state='souled';e.acquired=this.t;this.pulses.push({theta:e.theta,t:this.t,chunk:e.chunk});}
+  }
+  for(let k=0;k<removed.length;k++)this.q[k]-=removed[k];
+ }
+ deposit(theta,energy){
+  const pos=wrap(theta)/TAU*N,i=Math.floor(pos),f=pos-i;
+  this.q[i]+=energy*(1-f);this.q[(i+1)%N]+=energy*f;
+ }
+ step(dt=DT){
+  if(this.finished)return;
+  if(this.endingAt!==null){this.t+=dt;if(this.t>=this.endingAt+4.5)this.finished=true;return;}
+  this.t+=dt;
+  this.updateSinks();
+  this.absorbSinks();this.fieldStep(dt);this.absorbSinks();
+  const drain=CONFIG.returnRate;
+  for(const e of this.lives)if(e.state==='person'){e.neighbours=this.neighbourhoodAt(e.theta,e.id);e.growth=this.growthAt(e.theta,e.id);}
+  for(const e of this.lives)if(e.state!=='person')e.age+=dt;
+  this.absorbEmbryos(dt);
+  for(const e of this.lives){
+   if(e.state==='waiting'&&e.age>=e.maturity-1e-9)e.state='failed';
+   if(e.state==='souled'&&e.age>=e.maturity-1e-9){e.state='person';e.personAge=0;e.velocity=(this.random()-.5)*.025;e.target=e.velocity;e.growth=this.growthAt(e.theta,e.id);e.nextTurn=this.t+1+this.random()*3;this.born++;}
+  }
+  const living=[];
+  for(const e of this.lives){
+   if(e.state==='failed'){this.failedEnergy+=e.soul;e.soul=0;this.deaths++;this.embryoDeaths++;this.tombs.push({id:e.id,theta:e.theta,t:this.t,reason:'embryo'});continue;}
+   if(e.state==='person'){
+    const net=drain-e.growth;
+    const active=net>0?Math.min(dt,e.soul/net):dt;
+    const creation=e.growth*active,returned=drain*active;
+    this.created+=creation;e.created+=creation;e.soul+=creation-returned;e.personAge+=active;
+    if(this.t>=e.nextTurn){e.target=(this.random()-.5)*.035;e.nextTurn=this.t+2+this.random()*3;}
+    e.velocity+=(e.target-e.velocity)*(1-Math.exp(-active*.75));e.theta=wrap(e.theta+e.velocity*active);
+    this.deposit(e.theta,returned);
+    if(net>0&&e.soul<=1e-10){
+     // Send the rounding remainder back as well to preserve the ledger.
+     this.deposit(e.theta,e.soul);e.soul=0;this.deaths++;this.completed++;this.tombs.push({id:e.id,theta:e.theta,t:this.t});continue;
+    }
+   }
+   living.push(e);
+  }
+  this.absorbSinks();this.lives=living;this.tombs=this.tombs.filter(e=>this.t-e.t<8);this.pulses=this.pulses.filter(e=>this.t-e.t<1.5);
+  if(this.t>=TOTAL_TIME-1e-8){this.gather();return;}
+  if(this.t>=this.nextSample){this.record();this.nextSample=this.t+.5;}
+ }
+ totals(){const cloud=sum(this.q);let world=0,people=0,waiting=0,embryos=0;for(const e of this.lives){world+=e.soul;if(e.state==='person')people++;else{embryos++;if(e.state==='waiting')waiting++;}}return{cloud,world,total:cloud+world,people,waiting,embryos,destroyed:this.destroyed,failedEnergy:this.failedEnergy,error:cloud+world-this.initial-this.created+this.destroyed+this.failedEnergy};}
+ record(){const s=this.totals();this.history.push({t:this.t,cloud:s.cloud,world:s.world,total:s.total});if(this.history.length>361)this.history.shift();}
+}
+
+window.LifestreamGame={Model,CONFIG,TOTAL_TIME,DT};
+const $=id=>document.getElementById(id);
+let game=new Model(73),started=false,paused=true,selected=.45,artMode=false,accumulator=0,last=0,lastUI=0,lastDraw=0,artTimer=0,toastTimer=0,helpWasPaused=true,lastPhase='',resultShown=false;
+const canvas=$('world'),ctx=canvas.getContext('2d'),omens=$('omens'),ox=omens.getContext('2d');
+let W=0,H=0,cx=0,cy=0,inner=0,outer=0;
+const texture=document.createElement('canvas');texture.width=texture.height=320;
+const tc=texture.getContext('2d'),image=tc.createImageData(320,320),samples=[];
+for(let y=0;y<320;y++)for(let x=0;x<320;x++){
+ const dx=(x+.5-160)/160,dy=(y+.5-160)/160,r=Math.hypot(dx,dy);if(r<=.65||r>=1)continue;
+ const a=wrap(Math.atan2(dy,dx)+Math.PI/2)/TAU*N,i=Math.floor(a),fx=a-i,radial=(r-.65)/.35*(R+1)-1,j=Math.floor(radial),fy=radial-j;
+ const index=(row,col)=>row<0||row>=R?-1:row*N+col%N;
+ samples.push([(y*320+x)*4,index(j,i),index(j,i+1),index(j+1,i),index(j+1,i+1),fx,fy]);
+}
+function resize(){const b=$('stage').getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);W=b.width;H=b.height;canvas.width=Math.round(W*d);canvas.height=Math.round(H*d);ctx.setTransform(d,0,0,d,0,0);omens.width=canvas.width;omens.height=canvas.height;ox.setTransform(d,0,0,d,0,0);cx=W/2;cy=H/2;outer=Math.min(W*.445,(H-(artMode?25:90))*.5);inner=outer*.65;}
+function point(theta,r){return{x:cx+Math.sin(theta)*r,y:cy-Math.cos(theta)*r};}
+function dot(x,y,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();}
+function circle(p,r,color,width=1,start=0,end=TAU){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.arc(p.x,p.y,r,start-Math.PI/2,end-Math.PI/2);ctx.stroke();}
+function text(value,x,y,color='#a8c8b6',size=10){ctx.fillStyle=color;ctx.font=size+'px system-ui';ctx.textAlign='center';ctx.fillText(value,x,y);}
+function render(){
+ ctx.clearRect(0,0,W,H);const q=game.q,ref=CONFIG.initial/N*.5,gather=game.endingAt===null?0:clamp((game.t-game.endingAt)/3,0,1);
+ for(const [k,a,b,c,d,fx,fy] of samples){const lo=(a<0?0:q[a])*(1-fx)+(b<0?0:q[b])*fx,hi=(c<0?0:q[c])*(1-fx)+(d<0?0:q[d])*fx,mass=lo*(1-fy)+hi*fy;image.data[k]=Math.round(100+137*gather);image.data[k+1]=Math.round(228-8*gather);image.data[k+2]=Math.round(176-34*gather);image.data[k+3]=Math.round(220*(1-Math.exp(-mass/ref*1.4)));}
+ tc.putImageData(image,0,0);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(texture,cx-outer,cy-outer,outer*2,outer*2);
+ circle({x:cx,y:cy},outer,'rgba(133,190,166,.17)');circle({x:cx,y:cy},inner,'rgba(177,201,183,.23)');
+ // Sparse current traces express the field's clockwise advection; not extra energy.
+ for(let i=0;i<12;i++){const a=wrap(i/12*TAU+game.t*CONFIG.current/N*TAU),p=point(a,outer+6),a1=point(a-.022,outer+10),a2=point(a-.022,outer+2);ctx.beginPath();ctx.moveTo(a1.x,a1.y);ctx.lineTo(p.x,p.y);ctx.lineTo(a2.x,a2.y);ctx.strokeStyle='rgba(159,208,181,.25)';ctx.lineWidth=1;ctx.stroke();}
+ if(!artMode){text('SOUL PLANE',cx,cy-outer-18,'#77998a',9);text('WORLD PLANE',cx,cy+inner-19,'#78968c',9);}
+ for(const sink of game.sinks){
+  const p=point(sink.theta,inner+sink.fraction*(outer-inner)),r=outer*CONFIG.sinkRadius,remaining=clamp((sink.end-game.t)/sink.duration,0,1);
+  const halo=ctx.createRadialGradient(p.x,p.y,r*.6,p.x,p.y,r*2.5);halo.addColorStop(0,'rgba(185,95,245,.48)');halo.addColorStop(1,'rgba(85,30,130,0)');dot(p.x,p.y,r*2.5,halo);
+  dot(p.x,p.y,r,'#030208');circle(p,r,'#d5a5ff',2);circle(p,r+5,'rgba(171,117,214,.22)',2);circle(p,r+5,'#ce92fb',2.5,0,TAU*remaining);
+  for(let n=0;n<3;n++){const a=game.t*.7+n*TAU/3;circle(p,r+9+n*2,'rgba(178,103,237,.25)',1,a,a+.65);}
+  if(!artMode)text(Math.ceil(sink.end-game.t)+'s',p.x,p.y-r-13,'#d4b3eb',10);
+ }
+ for(const tomb of game.tombs){const p=point(tomb.theta,inner),a=Math.min(1,(8-(game.t-tomb.t))/2);ctx.save();ctx.translate(p.x,p.y);ctx.globalAlpha=a*.7;ctx.fillStyle=tomb.reason==='embryo'?'#827e89':'#819c90';ctx.beginPath();ctx.roundRect(-2.5,-4,5,7,[2.5,2.5,0,0]);ctx.fill();ctx.restore();}
+ for(const pulse of game.pulses){const age=game.t-pulse.t;if(age>1.5)continue;const p=point(pulse.theta,inner),opacity=1-age/1.5;circle(p,6+age*15,`rgba(255,221,157,${opacity*.7})`);if(!artMode&&age<1)text('Soul ready',p.x,p.y-13-age*9,`rgba(249,219,160,${opacity})`,9);}
+ for(const e of game.lives){
+  const p=point(e.theta,inner);
+  if(e.state==='waiting'){
+   circle(p,4,'#e8be80',1.1);dot(p.x,p.y,Math.max(.5,3.6*Math.sqrt(e.soul/e.chunk)),'#e8be80');circle(p,8,'rgba(182,147,95,.14)');circle(p,8,'rgba(246,202,137,.58)',1,0,TAU*clamp(1-e.age/e.maturity,0,1));
+  }else if(e.state==='souled'){dot(p.x,p.y,4,'#f1d3a1');circle(p,7,'rgba(249,214,156,.25)',1,0,TAU*clamp(1-e.age/e.maturity,0,1));}
+  else{
+   const f=clamp(e.soul/e.chunk,0,1),growth=(e.growth-CONFIG.growthMin)/(CONFIG.growthMax-CONFIG.growthMin),r=2.5+2.1*Math.sqrt(f);
+   dot(p.x,p.y,r+3+growth*2,`rgba(150,231,177,${.05+.13*growth})`);dot(p.x,p.y,r,`rgb(${Math.round(145+45*(1-f))},${Math.round(196+39*growth)},${Math.round(157+23*growth)})`);
+   const phase=(game.t*.32+e.id*.23)%1,ret=point(e.theta,inner+phase*(outer-inner));dot(ret.x,ret.y,.8,`rgba(170,226,190,${.3*Math.sin(phase*Math.PI)})`);
+  }
+ }
+ if(!isOverlayOpen()&&!artMode&&!game.finished&&game.endingAt===null){const p=point(selected,inner);circle(p,13,game.canPlant()&&!paused?'rgba(207,235,182,.6)':'rgba(160,179,160,.25)',1);const a=point(selected,inner-22),b=point(selected,inner-17);ctx.strokeStyle='#c3d8ad';ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}
+ if(game.endingAt!==null){
+  const elapsed=game.t-game.endingAt;
+  for(let n=0;n<(game.gathering||[]).length;n++){
+   const e=game.gathering[n];if(!e.person)continue;
+   const f=clamp((elapsed-(n%5)*.12)/3.1,0,1),ease=f*f*(3-2*f),p=point(e.theta+.16*Math.sin(f*Math.PI),inner+ease*(outer-inner));
+   const halo=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,17);halo.addColorStop(0,`rgba(255,223,151,${(1-f)*.65})`);halo.addColorStop(1,'rgba(255,215,136,0)');dot(p.x,p.y,17,halo);dot(p.x,p.y,4*(1-f),`rgba(255,238,182,${1-f})`);
+   if(f<1)circle(p,5+f*15,`rgba(255,219,150,${(1-f)*.5})`);
+  }
+  circle({x:cx,y:cy},inner+clamp(elapsed/4.5,0,1)*(outer-inner),'rgba(247,219,157,'+Math.max(0,.25-elapsed*.05)+')',1.5);
+ }
+ renderOmens();
+}
+function renderOmens(){
+ ox.clearRect(0,0,W,H);
+ const warnings=game.warnings(),latestStart=Math.max(-Infinity,...game.sinkSchedule.filter(s=>s.start<=game.t).map(s=>s.start));
+ const since=game.t-latestStart;
+ // Late anticipation: 1.2s eased drain, then 0.15s at full gray.
+ let drain=0;
+ for(const s of warnings){
+  const fadeStart=Math.max(s.start-1.35,latestStart+.2),duration=Math.max(.01,s.start-.15-fadeStart);
+  const x=clamp((game.t-fadeStart)/duration,0,1),ease=x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+  drain=Math.max(drain,ease);
+ }
+ if(game.endingAt!==null)drain=0;
+ document.body.style.setProperty('--drain',drain.toFixed(3));
+ const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+ for(const s of warnings){
+  const p=point(s.theta,inner+s.fraction*(outer-inner)),r=outer*CONFIG.sinkRadius,remaining=clamp((s.start-game.t)/CONFIG.warning,0,1);
+  const glow=ox.createRadialGradient(p.x,p.y,0,p.x,p.y,r*2.5);glow.addColorStop(0,'rgba(219,133,255,.28)');glow.addColorStop(1,'rgba(190,80,245,0)');ox.fillStyle=glow;ox.beginPath();ox.arc(p.x,p.y,r*2.5,0,TAU);ox.fill();
+  ox.lineWidth=2;ox.strokeStyle='#e2adff';ox.setLineDash([3,4]);ox.beginPath();ox.arc(p.x,p.y,r,-Math.PI/2,TAU*remaining-Math.PI/2);ox.stroke();ox.setLineDash([]);
+  ox.font='bold 18px system-ui';ox.textAlign='center';ox.fillStyle='#edc7ff';ox.fillText('!',p.x,p.y+6);
+  if(!artMode){ox.font='10px system-ui';ox.fillText(Math.ceil(s.start-game.t)+'s',p.x,p.y-r-10);}
+ }
+ if(since>=0&&since<.65&&game.endingAt===null){
+  // One soft violet-white flash; no repeated strobe. Reduced motion omits it.
+  if(!reduced){ox.fillStyle='rgba(233,216,255,'+(.28*(1-since/.65)**2)+')';ox.fillRect(0,0,W,H);}
+  for(const s of game.sinks)if(game.t-s.start<.65){const p=point(s.theta,inner+s.fraction*(outer-inner)),f=(game.t-s.start)/.65;ox.strokeStyle='rgba(238,210,255,'+(1-f)+')';ox.lineWidth=2;ox.beginPath();ox.arc(p.x,p.y,outer*CONFIG.sinkRadius+(reduced?0:f*35),0,TAU);ox.stroke();}
+ }
+}
+
+function announce(message){$('announcements').textContent=message;}
+function toast(message){$('toast').textContent=message;$('toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('visible'),2200);announce(message);}
+function formatTime(t){t=Math.max(0,Math.ceil(t-1e-7));return Math.floor(t/60)+':'+String(t%60).padStart(2,'0');}
+function isOverlayOpen(){return !$('welcome').hidden||!$('helpOverlay').hidden||!$('results').hidden;}
+function ui(){
+ const totals=game.totals(),atEnd=game.endingAt!==null,bossWarning=game.warnings().some(s=>s.boss),bossActive=game.sinks.some(s=>s.boss),calm=game.t>=CONFIG.sunrise+CONFIG.disturbance;
+ $('completed').textContent=game.completed;$('energy').textContent=game.created.toFixed(1);$('population').textContent=totals.people+' people · '+totals.embryos+' embryos';$('time').textContent=formatTime(TOTAL_TIME-game.t);$('runSeed').textContent='World '+currentSeed;
+ $('phase').textContent='The disturbance';$('phaseHint').textContent=atEnd?'Every remaining life joins the cloud.':bossActive?'Hold on. The final ring is here.':bossWarning?'The final ring is forming.':calm?'The world can breathe again.':'A world worth protecting.';
+ $('phaseTime').textContent=!started?'Place the first life to begin':atEnd?'A warm return':formatTime(TOTAL_TIME-game.t)+' remaining';
+ $('journeyProgress').style.width=clamp(game.t/TOTAL_TIME*100,0,100)+'%';
+ const closed=game.t>=TOTAL_TIME-CONFIG.maturity-1e-8;
+ $('seedStatus').textContent=closed?'Planting rests until another world.':'Unlimited seeds · finite energy';
+ $('plant').disabled=(started&&paused)||!game.canPlant()||isOverlayOpen();$('pause').disabled=!started||game.finished||isOverlayOpen();$('pause').textContent=paused?'Resume':'Pause';
+ $('stageStatus').textContent=!started?'PLACE THE FIRST LIFE':paused?'PAUSED':atEnd?'GATHERED IN LIGHT':bossActive?'THE FINAL RING':bossWarning?'THE RING IS FORMING':'THE DISTURBANCE';
+ $('centerSymbol').textContent=bossActive||bossWarning?'◉':'✧';$('centerTitle').textContent=atEnd?'Every life belongs.':!started?'You begin the story.':paused?'The world can wait.':bossActive?'Keep life flowing.':bossWarning?'A final test.':calm?'Let the world breathe.':'Watch the flow.';
+ $('centerText').textContent=atEnd?game.gathered+' lives gathered in light.':!started?'Plant anywhere on the inner ring. The clock starts with you.':bossActive?'The ring will pass in '+Math.ceil(CONFIG.sunrise+CONFIG.disturbance-game.t)+'s.':calm?'The disturbance has passed.':game.sinks.length+' active sinks · '+game.warnings().length+' warnings';
+ $('stageHint').textContent=closed?'New planting has closed. Every embryo gets its full window.':paused&&started?'Resume whenever you are ready.':'Tap around the inner ring to plant a life.';
+ const neighbours=game.neighbourhoodAt(selected),supply=game.localSupply(selected);$('localEnergy').textContent=supply.toFixed(1)+' / 12';$('support').textContent=neighbours.toFixed(1);$('growth').textContent=game.growthAt(selected).toFixed(2)+'/s';$('location').textContent=neighbours>2?'A close community':neighbours>.6?'Some company nearby':'Room for new life';
+ $('balance').textContent='Pool '+totals.total.toFixed(1)+' · sinks lost '+game.destroyed.toFixed(1)+' · embryos lost '+game.failedEnergy.toFixed(1);
+ const nearby=game.lives.filter(e=>e.state!=='person'&&Math.abs(delta(e.theta,selected))<.1).sort((a,b)=>Math.abs(delta(a.theta,selected))-Math.abs(delta(b.theta,selected)));
+ const e=nearby[0];
+ $('embryoStatus').textContent=e?(e.state==='souled'?'Soul ready':e.soul.toFixed(1)+' / 12 absorbed')+' · '+Math.max(0,e.maturity-e.age).toFixed(1)+'s left. '+(e.state==='souled'?'Developing safely.':e.age<.6?'Reading the flow…':e.soul+e.intake*(e.maturity-e.age)>=e.chunk?'On pace at recent intake.':'Needs more incoming energy.')+(nearby.length>1?' '+nearby.length+' embryos nearby.':''):'People help new souls gather. Open space gives each life more room to grow.';
+ const event=bossActive?'The final ring is active.':bossWarning?'The final ring is forming.':calm?'The disturbance has passed.':'';if(started&&event&&event!==lastPhase){announce(event);lastPhase=event;}
+ if(game.finished&&!resultShown)showResults();
+}
+let currentSeed=73;
+function setPause(value){paused=value;accumulator=0;last=0;ui();render();}
+function begin(seed){currentSeed=clamp(Math.trunc(Number(seed)||0),0,4294967295);game=new Model(currentSeed);started=false;paused=false;accumulator=0;last=0;lastPhase='';resultShown=false;selected=.45;$('welcome').hidden=true;$('results').hidden=true;$('helpOverlay').hidden=true;ui();render();$('plant').focus();announce('Choose your first placement. Time waits until you plant.');}
+function place(){if(artMode)return;if(game.finished||isOverlayOpen())return;if(started&&paused){toast('Resume when you are ready to plant.');return;}const life=game.plant(selected);if(!life){toast(game.t>=TOTAL_TIME-CONFIG.maturity?'Planting has closed for this world.':'The world is at its 250-life performance limit.');return;}if(!started){started=true;paused=false;accumulator=0;last=0;}announce('An embryo has begun. It needs 12 energy within six seconds.');ui();render();}
+function readRecords(){try{const value=JSON.parse(localStorage.getItem('lifestream-v3-records')||'{}');return{lives:Number.isFinite(value.lives)?value.lives:0,energy:Number.isFinite(value.energy)?value.energy:0};}catch{return{lives:0,energy:0};}}
+function showResults(){resultShown=true;paused=true;if(artMode)toggleArt();const energy=game.created,records=readRecords(),best={lives:Math.max(records.lives,game.completed),energy:Math.max(records.energy,energy)};try{localStorage.setItem('lifestream-v3-records',JSON.stringify(best));}catch{}
+ $('resultLives').textContent=game.completed;$('resultEnergy').textContent=energy.toFixed(1);$('bestLives').textContent='Personal best: '+best.lives;$('bestEnergy').textContent='Personal best: '+best.energy.toFixed(1);
+ $('resultsIntro').textContent=game.completed?'A small world, carried through the disturbance.':'The cycle grew quiet. Another world offers a new beginning.';
+ $('resultDetail').textContent=(game.completed-game.gathered)+' natural completions + '+game.gathered+' lives gathered in light. '+game.embryoDeaths+' embryos did not acquire a soul in time.';
+ $('resultLedger').textContent='Energy: '+CONFIG.initial+' initial + '+game.created.toFixed(1)+' created − '+game.destroyed.toFixed(1)+' lost to sinks − '+game.failedEnergy.toFixed(1)+' lost to embryos = '+game.totals().total.toFixed(1)+' remaining. Gathering returned '+game.gatheredEnergy.toFixed(1)+' held energy without adding to the total.';
+ $('results').hidden=false;$('replay').focus();announce('The world rests. '+game.completed+' completed lives and '+energy.toFixed(1)+' energy created.');
+}
+$('begin').addEventListener('click',()=>begin($('worldSeed').value));$('replay').addEventListener('click',()=>begin(currentSeed));
+$('newWorld').addEventListener('click',()=>{let seed;try{const value=new Uint32Array(1);crypto.getRandomValues(value);seed=value[0];}catch{seed=(Date.now()>>>0);}currentSeed=seed;$('worldSeed').value=seed;$('results').hidden=true;$('welcome').hidden=false;$('begin').focus();});
+$('pause').addEventListener('click',()=>setPause(!paused));$('plant').addEventListener('click',place);
+function rotate(amount){selected=wrap(selected+amount);ui();render();}
+$('left').addEventListener('click',()=>rotate(-TAU/24));$('right').addEventListener('click',()=>rotate(TAU/24));
+$('help').addEventListener('click',()=>{helpWasPaused=paused;paused=true;$('helpOverlay').hidden=false;ui();$('closeHelp').focus();});
+$('closeHelp').addEventListener('click',()=>{$('helpOverlay').hidden=true;paused=helpWasPaused;accumulator=0;last=0;ui();$('help').focus();});
+function selectFromPointer(e){const rect=canvas.getBoundingClientRect(),x=e.clientX-rect.left-cx,y=e.clientY-rect.top-cy,r=Math.hypot(x,y);if(r<inner*.65||r>outer+24)return false;selected=wrap(Math.atan2(y,x)+Math.PI/2);return true;}
+canvas.addEventListener('pointermove',e=>{if(artMode){showArtExit();return;}if(selectFromPointer(e)){ui();render();}});
+canvas.addEventListener('click',e=>{if(artMode){showArtExit();return;}if(selectFromPointer(e))place();});
+function showArtExit(){if(!artMode)return;$('stage').classList.add('art-ui');clearTimeout(artTimer);artTimer=setTimeout(()=>$('stage').classList.remove('art-ui'),2200);}
+function applyArt(value){artMode=value;document.body.classList.toggle('art-mode',value);$('stage').classList.toggle('art-view',value);$('art').setAttribute('aria-pressed',String(value));if(value)showArtExit();else{clearTimeout(artTimer);$('stage').classList.remove('art-ui');}resize();render();}
+async function toggleArt(){if(!started||isOverlayOpen())return;if(artMode){applyArt(false);if(document.fullscreenElement===$('stage'))try{await document.exitFullscreen();}catch{}}else{applyArt(true);if($('stage').requestFullscreen)try{await $('stage').requestFullscreen();}catch{/* Retain viewport art mode when native fullscreen is unavailable. */}}}
+$('art').addEventListener('click',toggleArt);$('exitArt').addEventListener('click',toggleArt);$('stage').addEventListener('pointermove',showArtExit);canvas.addEventListener('dblclick',()=>{if(artMode)toggleArt();});
+document.addEventListener('fullscreenchange',()=>{if(document.fullscreenElement===$('stage'))applyArt(true);else if(artMode)applyArt(false);});
+document.addEventListener('visibilitychange',()=>{last=0;accumulator=0;if(document.hidden&&started&&!game.finished){paused=true;ui();}});
+document.addEventListener('keydown',e=>{
+ const active=document.activeElement,editing=['INPUT','SELECT','TEXTAREA'].includes(active.tagName);
+ if(e.code==='Escape'){if(artMode){toggleArt();return;}if(!$('helpOverlay').hidden){$('closeHelp').click();return;}}
+ // Keep keyboard focus within the currently open dialog.
+ if(e.code==='Tab'&&isOverlayOpen()){const panel=!$('helpOverlay').hidden?$('helpOverlay'):!$('results').hidden?$('results'):$('welcome'),focusable=[...panel.querySelectorAll('button,input')].filter(el=>!el.disabled);if(focusable.length){if(e.shiftKey&&active===focusable[0]){e.preventDefault();focusable.at(-1).focus();}else if(!e.shiftKey&&active===focusable.at(-1)){e.preventDefault();focusable[0].focus();}}return;}
+ if(editing||isOverlayOpen())return;
+ if(e.code==='KeyF'&&!e.repeat){e.preventDefault();toggleArt();}
+ else if(e.code==='Space'&&(artMode||!['BUTTON','SUMMARY'].includes(active.tagName))){e.preventDefault();setPause(!paused);}
+ else if(e.code==='ArrowLeft'){e.preventDefault();rotate(-TAU/24);}
+ else if(e.code==='ArrowRight'){e.preventDefault();rotate(TAU/24);}
+ else if(e.code==='Enter'&&!e.repeat&&active.tagName!=='BUTTON'){e.preventDefault();place();}
+});
+function frame(now){const elapsed=last?Math.min(.1,(now-last)/1000):0;last=now;if(started&&!paused&&!game.finished&&!document.hidden){accumulator+=elapsed;while(accumulator>=DT){game.step();accumulator-=DT;}}if(started&&!paused&&now-lastDraw>=1000/30){render();lastDraw=now;}if(now-lastUI>120){ui();lastUI=now;}requestAnimationFrame(frame);}
+new ResizeObserver(resize).observe($('stage'));window.addEventListener('resize',()=>{resize();render();});resize();ui();render();requestAnimationFrame(frame);$('begin').focus();
+window.lifestream={get model(){return game},begin,pause:()=>setPause(true),step(seconds){if(!started)return;paused=true;for(let i=0;i<Math.round(seconds/DT);i++)game.step();ui();render();},get selection(){return selected}};
+
+</script></body></html>
