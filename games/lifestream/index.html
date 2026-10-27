@@ -21,12 +21,12 @@ header,.phase-line,.timeline,.hud,.sidebar,.under,.overlay .card,.stage-caption,
 <div class="under"><span id="balance">Pool 120.0 · sinks lost 0.0 · embryos lost 0.0</span><span>Space to pause · ← → then Enter to plant · F for art</span></div>
 </main>
 <section class="overlay" id="welcome" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle"><div class="card"><div class="eyebrow">One world. One disturbance.</div><h2 id="welcomeTitle">Tend the lifestream.</h2><p>Begin lives around the world ring. Follow the moving cloud, shelter energy through living people, and help the world endure the disturbance.</p><div class="intro-steps"><div><b>Plant with care.</b> An embryo needs 12 energy within 6 seconds. Seeds are unlimited. Failed embryos destroy all energy they absorbed.</div><div><b>Read the current.</b> Crowded places offer support. Sparse places give successful lives more room to grow.</div><div><b>Weather the disturbance.</b> Violet warnings precede temporary sinks. A final ring of sinks tests the world before every remaining person is gathered in light.</div></div><div class="seed-input"><label for="worldSeed">World seed</label><input id="worldSeed" type="number" min="0" max="4294967295" step="1" value="73"></div><div class="actions"><button id="begin" class="primary">Choose the first life</button></div><p style="font-size:10px;margin-bottom:0">Create as much new energy as you can. Completed lives are a secondary result. Pause whenever you like.</p></div></section>
-<section class="overlay" id="helpOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="card"><div class="eyebrow">A few quiet rules</div><h2 id="helpTitle">Watch where life can grow.</h2><div class="help-grid"><p><b>Tap the inner ring</b> to plant. Move the pointer, or use the arrow controls, to inspect the supply at a location. Planting closes six seconds before gathering.</p><p><b>Souls fill gradually.</b> Embryos absorb nearby energy until they hold 12. The center fills as energy arrives; the outer arc shows time left. A filled embryo still develops for six seconds. Failed embryos destroy what they absorbed. Planting too many can make all of them fail.</p><p><b>Space enriches life.</b> People create more energy when fewer others share their surroundings. Their glow reflects that growth; everyone still has a finite lifetime.</p><p><b>Violet means a sink.</b> Dashed countdowns warn of arrival. Color drains in the final moment before activation. A flash marks activation; the black disk consumes cloud energy and the violet arc shows time left. The cloud moves clockwise, faster near the outside.</p><p><b>After the final ring, calm returns.</b> The remaining people rise into the cloud, keep their remaining energy, and count as completed lives. Failed embryos do not count.</p><p><b>Your time is yours.</b> Space pauses; switching tabs pauses automatically. Art view hides the interface and continues at the current pace; Esc, F, or double-click exits.</p></div><div class="actions"><button id="closeHelp" class="primary">Back to the world</button></div></div></section>
+<section class="overlay" id="helpOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="card"><div class="eyebrow">A few quiet rules</div><h2 id="helpTitle">Watch where life can grow.</h2><div class="help-grid"><p><b>Tap the inner ring</b> to plant. Move the pointer, or use the arrow controls, to inspect the supply at a location. Planting closes six seconds before gathering.</p><p><b>Souls fill gradually.</b> Embryos absorb nearby energy until they hold 12. The center fills as energy arrives; the outer arc shows time left. A filled embryo still develops for six seconds. Failed embryos destroy what they absorbed. Planting too many can make all of them fail.</p><p><b>Space enriches life.</b> People create more energy when fewer others share their surroundings. Their glow reflects that growth; everyone still has a finite lifetime.</p><p><b>Violet means a sink.</b> Dashed countdowns warn of arrival. Color drains in the final moment before activation. A flash marks activation; the black disk consumes cloud energy and the violet arc shows time left. The outermost cloud is safe from sinks. Only embryos pull energy out of it; once between the planes, that energy is exposed. The cloud moves clockwise, faster near the outside.</p><p><b>After the final ring, calm returns.</b> The remaining people rise into the cloud, keep their remaining energy, and count as completed lives. Failed embryos do not count.</p><p><b>Your time is yours.</b> Space pauses; switching tabs pauses automatically. Art view hides the interface and continues at the current pace; Esc, F, or double-click exits.</p></div><div class="actions"><button id="closeHelp" class="primary">Back to the world</button></div></div></section>
 <section class="overlay" id="results" hidden role="dialog" aria-modal="true" aria-labelledby="resultsTitle"><div class="card"><div class="eyebrow">The world rests</div><h2 id="resultsTitle">What you helped continue.</h2><p id="resultsIntro">Every remaining life has joined the cloud in light.</p><div class="result-pair"><div class="result-stat"><label>Energy created</label><strong id="resultEnergy">0.0</strong><small id="bestEnergy">Personal best: 0.0</small></div><div class="result-stat"><label>Completed lives</label><strong id="resultLives">0</strong><small id="bestLives">Personal best: 0</small></div></div><p class="results-note" id="resultDetail"></p><p class="results-note" id="resultLedger"></p><div class="actions"><button id="replay" class="primary">Try this world again</button><button id="newWorld">Another world</button></div></div></section>
 <div id="announcements" class="sr-only" role="status" aria-live="polite"></div>
 <script>
 const TAU=Math.PI*2, N=144, R=8, DT=1/60, CAP=250;
-const CONFIG=Object.freeze({sunrise:10,disturbance:210,sunset:14,initial:120,chunk:12,maturity:6,returnRate:.62,growthMin:.12,growthMax:.34,crowdingScale:1.4,neighbourhood:.24,intakeRate:3,absorptionRate:6,warning:8,current:1.35,diffusion:.18,sinkPull:.78,sinkRadius:.075,bossCount:16,bossInterval:.1,bossDuration:7,bossFraction:.46});
+const CONFIG=Object.freeze({sunrise:10,disturbance:150,sunset:14,initial:120,chunk:12,maturity:6,returnRate:.62,growthMin:.12,growthMax:.34,crowdingScale:1.4,neighbourhood:.24,intakeRate:8,absorptionRate:6,warning:8,current:1.35,diffusion:.18,sinkPull:.78,sinkRadius:.075,bossCount:16,bossInterval:.03,bossDuration:7,bossFraction:.46});
 const TOTAL_TIME=CONFIG.sunrise+CONFIG.disturbance+CONFIG.sunset;
 const DEFAULTS={chunk:CONFIG.chunk,returnRate:CONFIG.returnRate,attraction:1,gravity:.36,diffusion:CONFIG.diffusion,maturity:CONFIG.maturity,sinkPull:CONFIG.sinkPull};
 const wrap=a=>((a%TAU)+TAU)%TAU;
@@ -38,6 +38,7 @@ class Model {
   this.p={...DEFAULTS,...params};this.rng=seed>>>0;this.initial=initial;this.t=0;this.created=0;this.destroyed=0;this.failedEnergy=0;this.completed=0;this.gathered=0;this.gatheredEnergy=0;this.finished=false;this.endingAt=null;this.actions=[];this.born=0;this.deaths=0;this.embryoDeaths=0;this.id=0;
   this.q=new Float64Array(N*R);this.next=new Float64Array(N*R);this.well=new Float64Array(N);this.peak=new Float64Array(N);this.angular=new Float64Array(N);
   this.sinks=[];this.sinkSchedule=[];this.hazardRng=(seed^0xA341316C)>>>0;this.buildSchedule();this.sinkAngular=new Float64Array(N*R);this.sinkRadial=new Float64Array(N*R);
+  for(const sink of this.sinkSchedule)this.prepareSink(sink);
   this.lives=[];this.tombs=[];this.pulses=[];this.history=[];this.nextSample=0;
   let total=0;
   for(let j=0;j<R;j++)for(let i=0;i<N;i++){const angle=i/N*TAU,patch=Math.exp(2.3*Math.cos(angle-.45))+.72*Math.exp(2.1*Math.cos(angle-3.7));const w=Math.exp((j-(R-1))*1.4)*(.10+patch);this.q[j*N+i]=w;total+=w;}
@@ -93,26 +94,32 @@ class Model {
   for(const e of this.lives){if(e.state==='person'){this.deposit(e.theta,e.soul);this.completed++;this.gathered++;this.gatheredEnergy+=e.soul;}else{this.embryoDeaths++;this.failedEnergy+=e.soul;}e.soul=0;}
   this.lives=[];this.record();
  }
+ prepareSink(sink){
+  if(sink.physics)return sink.physics;
+  const angular=new Float64Array(N*R),radial=new Float64Array(N*R),center=this.sinkPosition(sink),captureCells=[];
+  for(let j=0;j<R-1;j++)for(let i=0;i<N;i++){
+   const k=j*N+i,d=delta(sink.theta,i/N*TAU),dr=sink.layer-(j+.5);
+   angular[k]=14*Math.exp(-.5*((d/.24)**2+((sink.layer-j)/3)**2))*d/.24;
+   // Never let sink force cross the protected cloud boundary.
+   if(j<R-2)radial[k]=18*Math.exp(-.5*((d/.24)**2+(dr/3)**2))*dr/3;
+   const p=this.cellPosition(k);if((p.x-center.x)**2+(p.y-center.y)**2<=CONFIG.sinkRadius**2)captureCells.push(k);
+  }
+  Object.defineProperty(sink,'physics',{value:{angular,radial,center},enumerable:false});sink.captureCells=captureCells;return sink.physics;
+ }
  cacheSinkForces(){
   this.sinkAngular.fill(0);this.sinkRadial.fill(0);
-  // Static sink positions: cache their unit-strength field only when count changes.
-  for(const sink of this.sinks)for(let j=0;j<R;j++)for(let i=0;i<N;i++){
-   const k=j*N+i,d=delta(sink.theta,i/N*TAU),radial=sink.layer-(j+.5);
-   const angularWeight=Math.exp(-.5*((d/.24)**2+((sink.layer-j)/3)**2));
-   const radialWeight=Math.exp(-.5*((d/.24)**2+(radial/3)**2));
-   this.sinkAngular[k]+=14*angularWeight*d/.24;
-   this.sinkRadial[k]+=18*radialWeight*radial/3;
-  }
+  // Activation only adds precomputed arrays; no trigonometry, exponentials or geometry scan.
+  for(const sink of this.sinks){const f=this.prepareSink(sink);for(let k=0;k<N*R;k++){this.sinkAngular[k]+=f.angular[k];this.sinkRadial[k]+=f.radial[k];}}
  }
  sinkPosition(sink){const r=.65+.35*(sink.fraction??((sink.layer+1)/(R+1)));return{x:Math.sin(sink.theta)*r,y:-Math.cos(sink.theta)*r};}
  cellPosition(k){const r=.65+.35*(Math.floor(k/N)+1)/(R+1),a=(k%N)/N*TAU;return{x:Math.sin(a)*r,y:-Math.cos(a)*r};}
  blockedIntake(theta,k){
   const a={x:Math.sin(theta)*.65,y:-Math.cos(theta)*.65},b=this.cellPosition(k),dx=b.x-a.x,dy=b.y-a.y,len=dx*dx+dy*dy;
-  return this.sinks.some(sink=>{const c=this.sinkPosition(sink),f=len?clamp(((c.x-a.x)*dx+(c.y-a.y)*dy)/len,0,1):0;return (a.x+f*dx-c.x)**2+(a.y+f*dy-c.y)**2<=CONFIG.sinkRadius**2;});
+  return this.sinks.some(sink=>{const c=this.prepareSink(sink).center,f=len?clamp(((c.x-a.x)*dx+(c.y-a.y)*dy)/len,0,1):0;return (a.x+f*dx-c.x)**2+(a.y+f*dy-c.y)**2<=CONFIG.sinkRadius**2;});
  }
  absorbSinks(){
   for(const sink of this.sinks){
-   if(!sink.captureCells){const c=this.sinkPosition(sink);sink.captureCells=[];for(let k=0;k<this.q.length;k++){const p=this.cellPosition(k);if((p.x-c.x)**2+(p.y-c.y)**2<=CONFIG.sinkRadius**2)sink.captureCells.push(k);}}
+   this.prepareSink(sink);
    for(const k of sink.captureCells){const energy=this.q[k];this.q[k]=0;this.destroyed+=energy;sink.destroyed+=energy;}
   }
  }
@@ -143,7 +150,10 @@ class Model {
    this.next[a]-=flux;this.next[b]+=flux;
    if(j<R-1){
     const c=a+N,reach=.20+.80*Math.exp(-(j+.5)/2.1),vr=clamp(2.5*this.p.gravity-13*reach*this.p.attraction*this.well[i]+this.p.sinkPull*this.sinkRadial[a],-12,12);
-    const radial=dt*(diff*(this.q[a]-this.q[c])+vr*(vr>=0?this.q[a]:this.q[c]));
+    // The outermost layer is a resting reservoir. No passive inward leak:
+    // only net embryo attraction can withdraw it; return flow remains free.
+    const mixing=j===R-2?Math.max(0,this.q[a]-this.q[c]):this.q[a]-this.q[c];
+    const radial=dt*(diff*mixing+vr*(vr>=0?this.q[a]:this.q[c]));
     this.next[a]-=radial;this.next[c]+=radial;
    }
   }
@@ -219,6 +229,7 @@ window.LifestreamGame={Model,CONFIG,TOTAL_TIME,DT};
 const $=id=>document.getElementById(id);
 let game=new Model(73),started=false,paused=true,selected=.45,artMode=false,accumulator=0,last=0,lastUI=0,lastDraw=0,artTimer=0,toastTimer=0,helpWasPaused=true,lastPhase='',resultShown=false;
 const canvas=$('world'),ctx=canvas.getContext('2d'),omens=$('omens'),ox=omens.getContext('2d');
+let lastDrain='';
 let W=0,H=0,cx=0,cy=0,inner=0,outer=0;
 const texture=document.createElement('canvas');texture.width=texture.height=320;
 const tc=texture.getContext('2d'),image=tc.createImageData(320,320),samples=[];
@@ -237,10 +248,10 @@ function render(){
  ctx.clearRect(0,0,W,H);const q=game.q,ref=CONFIG.initial/N*.5,gather=game.endingAt===null?0:clamp((game.t-game.endingAt)/3,0,1);
  for(const [k,a,b,c,d,fx,fy] of samples){const lo=(a<0?0:q[a])*(1-fx)+(b<0?0:q[b])*fx,hi=(c<0?0:q[c])*(1-fx)+(d<0?0:q[d])*fx,mass=lo*(1-fy)+hi*fy;image.data[k]=Math.round(100+137*gather);image.data[k+1]=Math.round(228-8*gather);image.data[k+2]=Math.round(176-34*gather);image.data[k+3]=Math.round(220*(1-Math.exp(-mass/ref*1.4)));}
  tc.putImageData(image,0,0);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(texture,cx-outer,cy-outer,outer*2,outer*2);
- circle({x:cx,y:cy},outer,'rgba(133,190,166,.17)');circle({x:cx,y:cy},inner,'rgba(177,201,183,.23)');
+ circle({x:cx,y:cy},outer,'rgba(133,190,166,.17)');circle({x:cx,y:cy},outer*(.65+.35*7.5/9),'rgba(161,215,201,.16)',1);circle({x:cx,y:cy},inner,'rgba(177,201,183,.23)');
  // Sparse current traces express the field's clockwise advection; not extra energy.
  for(let i=0;i<12;i++){const a=wrap(i/12*TAU+game.t*CONFIG.current/N*TAU),p=point(a,outer+6),a1=point(a-.022,outer+10),a2=point(a-.022,outer+2);ctx.beginPath();ctx.moveTo(a1.x,a1.y);ctx.lineTo(p.x,p.y);ctx.lineTo(a2.x,a2.y);ctx.strokeStyle='rgba(159,208,181,.25)';ctx.lineWidth=1;ctx.stroke();}
- if(!artMode){text('SOUL PLANE',cx,cy-outer-18,'#77998a',9);text('WORLD PLANE',cx,cy+inner-19,'#78968c',9);}
+ if(!artMode){text('SOUL CLOUD · PROTECTED',cx,cy-outer-18,'#77998a',9);text('WORLD PLANE',cx,cy+inner-19,'#78968c',9);}
  for(const sink of game.sinks){
   const p=point(sink.theta,inner+sink.fraction*(outer-inner)),r=outer*CONFIG.sinkRadius,remaining=clamp((sink.end-game.t)/sink.duration,0,1);
   const halo=ctx.createRadialGradient(p.x,p.y,r*.6,p.x,p.y,r*2.5);halo.addColorStop(0,'rgba(185,95,245,.48)');halo.addColorStop(1,'rgba(85,30,130,0)');dot(p.x,p.y,r*2.5,halo);
@@ -278,27 +289,27 @@ function renderOmens(){
  ox.clearRect(0,0,W,H);
  const warnings=game.warnings(),latestStart=Math.max(-Infinity,...game.sinkSchedule.filter(s=>s.start<=game.t).map(s=>s.start));
  const since=game.t-latestStart;
- // Late anticipation: 1.2s eased drain, then 0.15s at full gray.
+ // Sharp inhale: accelerate into gray over the final .9s, with no held frame.
  let drain=0;
  for(const s of warnings){
-  const fadeStart=Math.max(s.start-1.35,latestStart+.2),duration=Math.max(.01,s.start-.15-fadeStart);
-  const x=clamp((game.t-fadeStart)/duration,0,1),ease=x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+  const fadeStart=Math.max(s.start-.9,latestStart+.15),duration=Math.max(.01,s.start-fadeStart);
+  const x=clamp((game.t-fadeStart)/duration,0,1),ease=x*x*x;
   drain=Math.max(drain,ease);
  }
  if(game.endingAt!==null)drain=0;
- document.body.style.setProperty('--drain',drain.toFixed(3));
+ const drainValue=drain.toFixed(3);if(drainValue!==lastDrain){document.body.style.setProperty('--drain',drainValue);lastDrain=drainValue;}
  const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
  for(const s of warnings){
-  const p=point(s.theta,inner+s.fraction*(outer-inner)),r=outer*CONFIG.sinkRadius,remaining=clamp((s.start-game.t)/CONFIG.warning,0,1);
+  const p=point(s.theta,inner+s.fraction*(outer-inner)),r=outer*CONFIG.sinkRadius*(reduced?1:1-.18*Math.pow(clamp(1-(s.start-game.t)/.35,0,1),2)),remaining=clamp((s.start-game.t)/CONFIG.warning,0,1);
   const glow=ox.createRadialGradient(p.x,p.y,0,p.x,p.y,r*2.5);glow.addColorStop(0,'rgba(219,133,255,.28)');glow.addColorStop(1,'rgba(190,80,245,0)');ox.fillStyle=glow;ox.beginPath();ox.arc(p.x,p.y,r*2.5,0,TAU);ox.fill();
   ox.lineWidth=2;ox.strokeStyle='#e2adff';ox.setLineDash([3,4]);ox.beginPath();ox.arc(p.x,p.y,r,-Math.PI/2,TAU*remaining-Math.PI/2);ox.stroke();ox.setLineDash([]);
   ox.font='bold 18px system-ui';ox.textAlign='center';ox.fillStyle='#edc7ff';ox.fillText('!',p.x,p.y+6);
   if(!artMode){ox.font='10px system-ui';ox.fillText(Math.ceil(s.start-game.t)+'s',p.x,p.y-r-10);}
  }
- if(since>=0&&since<.65&&game.endingAt===null){
+ if(since>=0&&since<.4&&game.endingAt===null){
   // One soft violet-white flash; no repeated strobe. Reduced motion omits it.
-  if(!reduced){ox.fillStyle='rgba(233,216,255,'+(.28*(1-since/.65)**2)+')';ox.fillRect(0,0,W,H);}
-  for(const s of game.sinks)if(game.t-s.start<.65){const p=point(s.theta,inner+s.fraction*(outer-inner)),f=(game.t-s.start)/.65;ox.strokeStyle='rgba(238,210,255,'+(1-f)+')';ox.lineWidth=2;ox.beginPath();ox.arc(p.x,p.y,outer*CONFIG.sinkRadius+(reduced?0:f*35),0,TAU);ox.stroke();}
+  if(!reduced&&since<.22){ox.fillStyle='rgba(233,216,255,'+(.34*(1-since/.22)**2)+')';ox.fillRect(0,0,W,H);}
+  for(const s of game.sinks)if(game.t-s.start<.4){const p=point(s.theta,inner+s.fraction*(outer-inner)),f=(game.t-s.start)/.4;ox.strokeStyle='rgba(238,210,255,'+(1-f)+')';ox.lineWidth=2;ox.beginPath();ox.arc(p.x,p.y,outer*CONFIG.sinkRadius+(reduced?0:f*35),0,TAU);ox.stroke();}
  }
 }
 
@@ -320,7 +331,7 @@ function ui(){
  $('centerText').textContent=atEnd?game.gathered+' lives gathered in light.':!started?'Plant anywhere on the inner ring. The clock starts with you.':bossActive?'The ring will pass in '+Math.ceil(CONFIG.sunrise+CONFIG.disturbance-game.t)+'s.':calm?'The disturbance has passed.':game.sinks.length+' active sinks · '+game.warnings().length+' warnings';
  $('stageHint').textContent=closed?'New planting has closed. Every embryo gets its full window.':paused&&started?'Resume whenever you are ready.':'Tap around the inner ring to plant a life.';
  const neighbours=game.neighbourhoodAt(selected),supply=game.localSupply(selected);$('localEnergy').textContent=supply.toFixed(1)+' / 12';$('support').textContent=neighbours.toFixed(1);$('growth').textContent=game.growthAt(selected).toFixed(2)+'/s';$('location').textContent=neighbours>2?'A close community':neighbours>.6?'Some company nearby':'Room for new life';
- $('balance').textContent='Pool '+totals.total.toFixed(1)+' · sinks lost '+game.destroyed.toFixed(1)+' · embryos lost '+game.failedEnergy.toFixed(1);
+ $('balance').textContent='Safe cloud '+game.q.slice((R-1)*N).reduce((a,b)=>a+b,0).toFixed(1)+' · pool '+totals.total.toFixed(1)+' · sinks lost '+game.destroyed.toFixed(1)+' · embryos lost '+game.failedEnergy.toFixed(1);
  const nearby=game.lives.filter(e=>e.state!=='person'&&Math.abs(delta(e.theta,selected))<.1).sort((a,b)=>Math.abs(delta(a.theta,selected))-Math.abs(delta(b.theta,selected)));
  const e=nearby[0];
  $('embryoStatus').textContent=e?(e.state==='souled'?'Soul ready':e.soul.toFixed(1)+' / 12 absorbed')+' · '+Math.max(0,e.maturity-e.age).toFixed(1)+'s left. '+(e.state==='souled'?'Developing safely.':e.age<.6?'Reading the flow…':e.soul+e.intake*(e.maturity-e.age)>=e.chunk?'On pace at recent intake.':'Needs more incoming energy.')+(nearby.length>1?' '+nearby.length+' embryos nearby.':''):'People help new souls gather. Open space gives each life more room to grow.';
@@ -331,8 +342,8 @@ let currentSeed=73;
 function setPause(value){paused=value;accumulator=0;last=0;ui();render();}
 function begin(seed){currentSeed=clamp(Math.trunc(Number(seed)||0),0,4294967295);game=new Model(currentSeed);started=false;paused=false;accumulator=0;last=0;lastPhase='';resultShown=false;selected=.45;$('welcome').hidden=true;$('results').hidden=true;$('helpOverlay').hidden=true;ui();render();$('plant').focus();announce('Choose your first placement. Time waits until you plant.');}
 function place(){if(artMode)return;if(game.finished||isOverlayOpen())return;if(started&&paused){toast('Resume when you are ready to plant.');return;}const life=game.plant(selected);if(!life){toast(game.t>=TOTAL_TIME-CONFIG.maturity?'Planting has closed for this world.':'The world is at its 250-life performance limit.');return;}if(!started){started=true;paused=false;accumulator=0;last=0;}announce('An embryo has begun. It needs 12 energy within six seconds.');ui();render();}
-function readRecords(){try{const value=JSON.parse(localStorage.getItem('lifestream-v3-records')||'{}');return{lives:Number.isFinite(value.lives)?value.lives:0,energy:Number.isFinite(value.energy)?value.energy:0};}catch{return{lives:0,energy:0};}}
-function showResults(){resultShown=true;paused=true;if(artMode)toggleArt();const energy=game.created,records=readRecords(),best={lives:Math.max(records.lives,game.completed),energy:Math.max(records.energy,energy)};try{localStorage.setItem('lifestream-v3-records',JSON.stringify(best));}catch{}
+function readRecords(){try{const value=JSON.parse(localStorage.getItem('lifestream-v4-records')||'{}');return{lives:Number.isFinite(value.lives)?value.lives:0,energy:Number.isFinite(value.energy)?value.energy:0};}catch{return{lives:0,energy:0};}}
+function showResults(){resultShown=true;paused=true;if(artMode)toggleArt();const energy=game.created,records=readRecords(),best={lives:Math.max(records.lives,game.completed),energy:Math.max(records.energy,energy)};try{localStorage.setItem('lifestream-v4-records',JSON.stringify(best));}catch{}
  $('resultLives').textContent=game.completed;$('resultEnergy').textContent=energy.toFixed(1);$('bestLives').textContent='Personal best: '+best.lives;$('bestEnergy').textContent='Personal best: '+best.energy.toFixed(1);
  $('resultsIntro').textContent=game.completed?'A small world, carried through the disturbance.':'The cycle grew quiet. Another world offers a new beginning.';
  $('resultDetail').textContent=(game.completed-game.gathered)+' natural completions + '+game.gathered+' lives gathered in light. '+game.embryoDeaths+' embryos did not acquire a soul in time.';
