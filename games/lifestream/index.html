@@ -26,7 +26,7 @@ header,.phase-line,.timeline,.hud,.sidebar,.under,.overlay .card,.stage-caption,
 <div id="announcements" class="sr-only" role="status" aria-live="polite"></div>
 <script>
 const TAU=Math.PI*2, N=144, R=8, DT=1/60, CAP=250;
-const CONFIG=Object.freeze({sunrise:10,disturbance:150,sunset:14,initial:120,chunk:12,maturity:6,returnRate:.62,growthMin:.12,growthMax:.34,crowdingScale:1.4,neighbourhood:.24,intakeRate:8,absorptionRate:6,warning:8,current:1.35,diffusion:.18,sinkPull:.78,sinkRadius:.075,bossCount:16,bossInterval:.03,bossDuration:7,bossFraction:.46});
+const CONFIG=Object.freeze({sunrise:10,disturbance:150,sunset:14,initial:120,chunk:12,maturity:6,returnRate:.62,growthMin:.12,growthMax:.34,crowdingScale:1.4,neighbourhood:.24,intakeRate:8,absorptionRate:6,warning:8,current:1.35,diffusion:.18,sinkPull:.78,sinkPullWidth:.11,sinkRadius:.075,bossCount:16,bossInterval:.03,bossDuration:7,bossFraction:.46});
 const TOTAL_TIME=CONFIG.sunrise+CONFIG.disturbance+CONFIG.sunset;
 const DEFAULTS={chunk:CONFIG.chunk,returnRate:CONFIG.returnRate,attraction:1,gravity:.36,diffusion:CONFIG.diffusion,maturity:CONFIG.maturity,sinkPull:CONFIG.sinkPull};
 const wrap=a=>((a%TAU)+TAU)%TAU;
@@ -99,9 +99,11 @@ class Model {
   const angular=new Float64Array(N*R),radial=new Float64Array(N*R),center=this.sinkPosition(sink),captureCells=[];
   for(let j=0;j<R-1;j++)for(let i=0;i<N;i++){
    const k=j*N+i,d=delta(sink.theta,i/N*TAU),dr=sink.layer-(j+.5);
-   angular[k]=14*Math.exp(-.5*((d/.24)**2+((sink.layer-j)/3)**2))*d/.24;
+   // The displayed rings compress the world's circumference: keep suction in a narrow radial column.
+   const across=d/CONFIG.sinkPullWidth,falloff=Math.exp(-.5*(across**2+((sink.layer-j)/3)**2));
+   angular[k]=14*falloff*across;
    // Never let sink force cross the protected cloud boundary.
-   if(j<R-2)radial[k]=18*Math.exp(-.5*((d/.24)**2+(dr/3)**2))*dr/3;
+   if(j<R-2)radial[k]=18*Math.exp(-.5*(across**2+(dr/3)**2))*dr/3;
    const p=this.cellPosition(k);if((p.x-center.x)**2+(p.y-center.y)**2<=CONFIG.sinkRadius**2)captureCells.push(k);
   }
   Object.defineProperty(sink,'physics',{value:{angular,radial,center},enumerable:false});sink.captureCells=captureCells;return sink.physics;
