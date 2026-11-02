@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#081323">
+  <meta name="description" content="Energy Rush: a one-button arcade game about timing, energy, and getting through the shift.">
+  <title>Energy Rush — One-button arcade</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body>
+  <div class="ambient ambient-a" aria-hidden="true"></div>
+  <div class="ambient ambient-b" aria-hidden="true"></div>
+  <main class="game-shell" id="gameShell">
+    <header class="masthead">
+      <div class="brand">
+        <span class="brand-symbol" aria-hidden="true">↯</span>
+        <div><div class="brand-name">ENERGY<span>RUSH</span></div><div class="brand-tag">A GAME OF WORK / REST / TIMING</div></div>
+      </div>
+      <div class="header-actions">
+        <button id="soundButton" class="icon-button" type="button" title="Toggle sound" aria-label="Toggle sound">♪</button>
+        <button id="pauseButton" class="icon-button" type="button" title="Pause game (P)" aria-label="Pause game">Ⅱ</button>
+      </div>
+    </header>
+
+    <section class="dashboard" aria-label="Game statistics">
+      <div class="stat stat-main"><div class="stat-label">NET EARNINGS <span class="tag-accent">YOUR SCORE</span></div><div class="stat-value money" id="bankValue">$0</div><div class="stat-foot">BEST <span id="bestValue">$0</span></div></div>
+      <div class="stat"><div class="stat-label">TIME LEFT</div><div class="stat-value" id="timeValue">3:00</div><div class="stat-foot" id="levelName">DAY SHIFT</div></div>
+      <div class="stat"><div class="stat-label">TEMPO</div><div class="stat-value stage-value"><span id="stageValue">01</span><span class="stage-suffix">STAGE</span></div><div class="stat-foot" id="tempoValue">1.00× SPEED</div></div>
+    </section>
+
+    <section class="energy-panel" aria-label="Energy">
+      <div class="row-between"><div class="section-kicker"><span class="signal-dot" id="energyDot"></span> ENERGY RESERVE</div><div class="energy-reading"><span id="energyValue">100</span><span class="unit">/100</span></div></div>
+      <div class="energy-track" role="progressbar" id="energyProgress" aria-label="Energy" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div class="exhaustion-zone"></div><div id="energyFill" class="energy-fill"></div><div class="energy-ticks"></div><div class="exhaustion-line"></div></div>
+      <div class="energy-legends"><span><i class="legend-swatch safe"></i>REST TO RECOVER</span><span class="danger-hint">20% <span>EXHAUSTED</span></span></div>
+    </section>
+
+    <section class="timeline-panel" aria-label="Upcoming events">
+      <div class="section-head"><div><div class="section-kicker">LOOK AHEAD</div><h2>UPCOMING SHIFT</h2></div><div class="ahead-tag">NEXT <strong>10s</strong></div></div>
+      <div class="timeline-frame"><canvas id="timelineCanvas" role="img" aria-label="Timeline showing upcoming work periods, bonuses, and pickups over the next ten seconds"></canvas><span class="timeline-now">NOW</span><span class="timeline-end">+10s</span></div>
+      <div class="timeline-legend"><span><i class="legend-swatch legend-duty"></i>Must work</span><span><i class="legend-swatch legend-night"></i>Night</span><span><i class="legend-swatch legend-gold"></i>2× pay</span><span><i class="legend-swatch legend-pickup"></i>Pickup</span></div>
+      <div class="live-status" id="liveStatus"><span class="live-status-icon">◎</span><span id="liveStatusText">Keep energy for mandatory shifts.</span></div>
+    </section>
+
+    <section class="resource-panel" aria-label="Focus and held powerup">
+      <div class="focus-resource"><div class="section-kicker">FOCUS <span class="muted-label">/ 30</span></div><div class="focus-number"><span id="focusValue">0</span><span class="focus-symbols" id="focusPips" aria-hidden="true">◇ ◇ ◇ ◇ ◇</span></div><div class="resource-hint">+1 per $100 earned / 5s work streak</div></div>
+      <div class="resource-divider"></div>
+      <div class="power-resource"><div class="section-kicker">HELD POWERUP</div><div class="power-title" id="powerTitle">EMPTY SLOT</div><div class="resource-hint" id="powerDescription">Work through a diamond to collect.</div></div>
+    </section>
+
+    <section class="lower-section">
+      <div class="input-zone">
+        <div class="control-quick"><span class="section-kicker">YOUR CALL</span><span id="modeIndicator" class="mode-indicator">READY</span></div>
+        <button id="workButton" class="work-button" type="button" aria-label="Hold to work"><span class="work-button-glow"></span><span class="work-icon" aria-hidden="true">↯</span><span class="work-button-copy"><strong id="workButtonText">HOLD TO WORK</strong><small>SPACE / MOUSE / TOUCH</small></span><span class="work-hold-indicator" aria-hidden="true">HOLD</span></button>
+        <div class="activation-row"><button id="activateButton" type="button" class="activate-button" disabled><span class="activate-glyph">✦</span><span id="activateText">USE POWERUP</span><span class="keycap">E</span></button><span class="input-tip">Release to rest.<br>Empty energy = game over.</span></div>
+      </div>
+      <section class="missions" aria-label="Level challenges"><div class="mission-heading"><span class="section-kicker">YOUR MISSIONS</span><span id="missionCount" class="mission-count">0/3</span></div><div id="missionList" class="mission-list"></div><div class="mission-subtitle">Complete missions to earn stars. Progress saved locally.</div></section>
+    </section>
+    <footer class="footer"><span>MADE FOR SHORT, SKILLFUL SESSIONS</span><span id="seedLabel">RUN —</span></footer>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <div class="overlay" id="menuOverlay"><div class="modal menu-modal" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
+    <div class="modal-eyebrow">ONE BUTTON. A THOUSAND DECISIONS.</div><h1 id="menuTitle">ENERGY<span>RUSH</span><i>.</i></h1>
+    <p class="modal-lede">Work for money. Rest for energy. See ten seconds into the future. Survive the shift.</p>
+    <div class="rule-chips"><span>↯ Hold to work</span><span>☾ Rest at night</span><span>! Never miss a shift</span></div>
+    <div class="modal-section-head">CHOOSE YOUR SHIFT</div><div class="level-options" id="levelOptions"></div>
+    <div id="selectedLevelInfo" class="selected-description"></div>
+    <button id="startButton" type="button" class="primary-action">START SHIFT <span>→</span></button>
+    <p class="menu-instructions">Hold <strong>Space</strong>, mouse, or touch to work. Press <strong>E</strong> or tap the smaller button to activate a collected powerup. Pause with <strong>P</strong>. Your best scores and missions are saved on this device.</p>
+  </div></div>
+
+  <div class="overlay hidden" id="pauseOverlay"><div class="modal small-modal" role="dialog" aria-modal="true" aria-labelledby="pauseTitle"><div class="modal-eyebrow">CATCH YOUR BREATH</div><h2 id="pauseTitle">PAUSED<span>.</span></h2><p>Time, energy, and the timeline are frozen.</p><button id="resumeButton" type="button" class="primary-action">RESUME SHIFT <span>→</span></button><button id="pauseQuitButton" type="button" class="text-action">Back to level selection</button></div></div>
+
+  <div class="overlay hidden" id="endOverlay"><div class="modal result-modal" role="dialog" aria-modal="true" aria-labelledby="resultTitle"><div class="modal-eyebrow" id="resultEyebrow">SHIFT COMPLETE</div><h2 id="resultTitle">WELL PLAYED<span>.</span></h2><p class="result-reason" id="resultReason">Time complete</p><div class="result-score-label">FINAL SCORE</div><div class="result-score" id="resultScore">$0</div><div class="result-metrics"><div><span>TIME SURVIVED</span><strong id="resultTime">0:00</strong></div><div><span>BEST ON THIS SHIFT</span><strong id="resultBest">$0</strong></div><div><span>MISSIONS COMPLETED</span><strong id="resultMissions">0 / 3</strong></div></div><div id="resultChallengeList" class="result-challenges"></div><div class="result-seed" id="resultSeed"></div><button id="newRunButton" type="button" class="primary-action">NEW RANDOM RUN <span>→</span></button><div class="secondary-actions"><button id="sameRunButton" type="button" class="text-action">Replay this layout</button><button id="chooseLevelButton" type="button" class="text-action">Choose level</button></div></div></div>
+</body>
+</html>
