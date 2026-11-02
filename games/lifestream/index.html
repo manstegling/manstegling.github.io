@@ -17,12 +17,12 @@ header,.phase-line,.timeline,.hud,.sidebar,.under,.overlay .card,.stage-caption,
 </style></head><body><main class="shell">
 <header><div><div class="eyebrow">A world worth tending</div><h1>Lifestream <span class="tagline">Begin a life. Follow the current.</span></h1></div><nav aria-label="Game controls"><button id="help">How to play</button><button id="pause" disabled>Pause</button><button id="art" aria-pressed="false">Art view</button></nav></header>
 <div class="phase-line"><span><b class="phase-name" id="phase">The disturbance</b> <span id="phaseHint">A world worth protecting.</span></span><span id="phaseTime">Place the first life to begin</span></div><div class="timeline" aria-label="World journey progress"><div style="flex:1"><i id="journeyProgress"></i></div></div>
-<div class="hud"><div class="metric"><label>Energy created</label><div class="value" id="energy">0.0</div><small>New energy made by living people</small></div><div class="metric"><label>Completed lives</label><div class="value" id="completed">0</div><small id="population">No lives begun yet</small></div><div class="metric"><label>Until gathering</label><div class="value" id="time">3:54</div><small id="runSeed">World 73</small></div></div>
+<div class="hud"><div class="metric"><label>Energy created</label><div class="value" id="energy">0.0</div><small>New energy made by living people</small></div><div class="metric"><label>Completed lives</label><div class="value" id="completed">0</div><small id="population">No lives begun yet</small></div><div class="metric"><label>Until gathering</label><div class="value" id="time">3:11</div><small id="runSeed">World 73</small></div></div>
 <div class="board"><section class="stage" id="stage" aria-label="World and circulating soul cloud"><canvas id="world" aria-label="Tap around the inner world ring to plant. Right-click or Control-click to deploy an available sanctuary. Violet sinks pull in and destroy unprotected cloud energy."></canvas><canvas id="omens" aria-hidden="true" style="pointer-events:none"></canvas><div id="bossWarning" class="boss-warning" aria-hidden="true"><strong>Warning</strong><span>The world is destabilizing</span></div><div class="stage-caption"><span id="stageStatus">Awaiting the first life</span><span>CLOCKWISE CURRENT ↻</span></div><div class="stage-center"><div class="symbol" id="centerSymbol">✧</div><strong id="centerTitle">A world begins</strong><p id="centerText">Small lives can start<br>something lasting.</p></div><div class="stage-bottom" id="stageHint">Tap the inner ring to begin a life.</div><div class="toast" id="toast" role="status"></div><button id="exitArt" class="art-exit">Exit art view</button></section>
 <aside class="sidebar"><div><div class="label">Seeds of life</div><p style="font-size:28px;color:var(--gold);margin:0" aria-label="Unlimited seeds">∞</p><p class="small" id="seedStatus">Unlimited seeds · finite energy</p><div class="place-controls"><button id="left" aria-label="Move planting location anticlockwise">←</button><button id="plant" class="primary" disabled>Plant</button><button id="right" aria-label="Move planting location clockwise">→</button></div><div class="sanctuary-control"><div class="label">Sanctuary</div><button id="sanctuaryButton" disabled aria-pressed="false" title="Arm, or drag onto the world">Deploy · <span id="sanctuaryCount">0</span> ready</button><p class="small" id="sanctuaryStatus">Earn one per 150 energy created.</p></div></div>
 <div class="supply"><div class="label">Selected location</div><b id="location">Near the dawn stream</b><div class="row"><span>Nearby cloud</span><strong id="localEnergy">0.0</strong></div><div class="row"><span>Living support</span><strong id="support">0</strong></div><div class="row"><span>Possible growth</span><strong id="growth">0.34/s</strong></div><p class="small" style="margin-top:13px" id="embryoStatus">People help new souls gather. Open space gives each life more room to grow.</p></div>
 <div class="legend"><span><i class="empty"></i>Gathering a soul</span><span><i class="embryo"></i>Souled embryo</span><span><i></i>Living person</span><span><i class="sanctuary"></i>Sanctuary</span><span><i class="warning"></i>Sink warning</span><span><i class="sink"></i>Active sink</span><span><i class="tomb"></i>Tombstone</span></div></aside></div>
-<div class="under"><span id="balance">Pool 120.0 · sinks lost 0.0 · embryos lost 0.0</span><span>Space to pause · ← → then Enter to plant · F for art</span></div>
+<div class="under"><span id="balance">Pool 135.0 · sinks lost 0.0 · embryos lost 0.0</span><span>Space to pause · ← → then Enter to plant · F for art</span></div>
 </main>
 <section class="overlay" id="welcome" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle"><div class="card"><div class="eyebrow">One world. One disturbance.</div><h2 id="welcomeTitle">Tend the lifestream.</h2><p>Begin lives around the world ring. Follow the moving cloud, shelter energy through living people, and help the world endure the disturbance.</p><div class="intro-steps"><div><b>Plant with care.</b> The first embryo needs 12 energy within 6 seconds. Later generations need more, but create more in return. Seeds are unlimited. Failed embryos destroy all energy they absorbed.</div><div><b>Read the current.</b> Crowded places offer support. Sparse places give successful lives more room to grow.</div><div><b>Weather the disturbance.</b> Gray warnings precede temporary sinks. A final ring of sinks tests the world before every remaining person is gathered in light.</div></div><div class="seed-input"><label for="worldSeed">World seed</label><input id="worldSeed" type="number" min="0" max="4294967295" step="1" value="73"></div><div class="actions"><button id="begin" class="primary">Choose the first life</button></div><p style="font-size:10px;margin-bottom:0">Create as much new energy as you can. Completed lives are a secondary result. Pause whenever you like.</p></div></section>
 <section class="overlay" id="helpOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="card"><div class="eyebrow">A few quiet rules</div><h2 id="helpTitle">Watch where life can grow.</h2><div class="help-grid"><p><b>Tap the inner ring</b> to plant. Move the pointer, or use the arrow controls, to inspect the supply at a location. Planting closes six seconds before gathering.</p><p><b>Souls fill gradually.</b> Embryos absorb nearby energy until they hold the requirement shown beside the seeds. The center fills as energy arrives; the outer arc shows time left. A filled embryo still develops for six seconds. Failed embryos destroy what they absorbed. Planting too many can make all of them fail.</p><p><b>Life advances.</b> As the world creates energy, new seeds require more soul energy and grow into larger, more productive people. Each generation keeps the traits it had when planted.</p><p><b>Space enriches life.</b> People create more energy when fewer others share their surroundings. Their glow reflects that growth; everyone still has a finite lifetime.</p><p><b>Create sanctuaries.</b> Every 150 energy created earns one persistent shield. Right-click or Control-click the world to deploy quickly, tap the Sanctuary button and then the world, or drag the button onto the world. A sanctuary neutralizes any sink touching its sparkling field, including partial overlaps; overlapping fields do not stack.</p><p><b>Violet means an active sink.</b> Gray arcs warn of arrival. Color drains in the final moment before activation. A flash marks activation; the black disk consumes unprotected cloud energy and the violet arc shows time left. Neutralized sinks remain gray. The outermost cloud is safe from sinks. Only embryos pull energy out of it; once between the planes, that energy is exposed. The cloud moves clockwise, faster near the outside.</p><p><b>After the final ring, calm returns.</b> The remaining people rise into the cloud, keep their remaining energy, and count as completed lives. Failed embryos do not count.</p><p><b>Your time is yours.</b> Space pauses; switching tabs pauses automatically. Art view hides the interface and continues at the current pace; Esc, F, or double-click exits.</p></div><div class="actions"><button id="closeHelp" class="primary">Back to the world</button></div></div></section>
@@ -30,9 +30,9 @@ header,.phase-line,.timeline,.hud,.sidebar,.under,.overlay .card,.stage-caption,
 <div id="announcements" class="sr-only" role="status" aria-live="polite"></div>
 <script>
 const TAU=Math.PI*2, N=144, R=8, DT=1/60, CAP=250;
-const CONFIG=Object.freeze({sunrise:10,disturbance:150,sunset:14,initial:120,chunk:12,maturity:6,returnRate:.62,growthMin:.12,growthMax:.34,crowdingScale:1.4,neighbourhood:.24,intakeRate:8,absorptionRate:6,advancementEnergy:250,chunkExponent:.9,growthExponent:.45,returnExponent:.65,maxVisualScale:1.7,warning:20,current:1.35,diffusion:.18,sinkPull:.92,sinkPullWidth:.18,sinkRadius:.075,sinkWarningStart:.24,sinkWarningEnd:.68,sinkActivationGrow:.4,sanctuaryCost:150,sanctuaryHalfWidth:.3054,bossCount:16,bossInterval:.03,bossDuration:7,bossFraction:.46,bossWarningLead:6,bossMessageDuration:2.4});
+const CONFIG=Object.freeze({sunrise:17,disturbance:160,sunset:14,initial:135,chunk:12,maturity:6,lifespan:100,growthMin:.12,growthMax:.34,crowdingScale:1.4,neighbourhood:.24,intakeRate:8,absorptionRate:6,advancementEnergy:500,chunkExponent:.9,growthExponent:.45,lifespanExponent:.15,maxVisualScale:1.7,warning:20,current:1.35,diffusion:.18,sinkPull:.92,sinkPullWidth:.18,sinkRadius:.075,sinkWarningStart:.24,sinkWarningEnd:.68,sinkActivationGrow:.4,lateSinkFractions:Object.freeze([.64,.77,.8]),sanctuaryCost:150,sanctuaryHalfWidth:.3054,bossCount:16,bossInterval:.03,bossDuration:7,bossFraction:.46,bossWarningLead:6,bossMessageDuration:2.4});
 const TOTAL_TIME=CONFIG.sunrise+CONFIG.disturbance+CONFIG.sunset,BOSS_START=CONFIG.sunrise+CONFIG.disturbance-CONFIG.bossDuration;
-const DEFAULTS={chunk:CONFIG.chunk,returnRate:CONFIG.returnRate,attraction:1,gravity:.36,diffusion:CONFIG.diffusion,maturity:CONFIG.maturity,sinkPull:CONFIG.sinkPull};
+const DEFAULTS={chunk:CONFIG.chunk,lifespan:CONFIG.lifespan,attraction:1,gravity:.36,diffusion:CONFIG.diffusion,maturity:CONFIG.maturity,sinkPull:CONFIG.sinkPull};
 const wrap=a=>((a%TAU)+TAU)%TAU;
 const delta=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
 const sum=a=>a.reduce((s,x)=>s+x,0);
@@ -52,8 +52,11 @@ class Model {
  }
  random(){let t=this.rng+=0x6D2B79F5;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);this.rng>>>=0;return((t^(t>>>14))>>>0)/4294967296;}
  generationAt(created=this.created){
-  const advancement=1+created/CONFIG.advancementEnergy,chunkScale=advancement**CONFIG.chunkExponent,growthScale=advancement**CONFIG.growthExponent,returnScale=advancement**CONFIG.returnExponent;
-  return{advancement,chunk:this.p.chunk*chunkScale,growthScale,returnRate:this.p.returnRate*returnScale,intakeRate:CONFIG.intakeRate*chunkScale,visualScale:Math.min(CONFIG.maxVisualScale,Math.sqrt(chunkScale))};
+  // A soft knee leaves room for the first population to form, then approaches
+  // linear pressure as created energy grows: p²/(1+p) tends toward p-1.
+  const progress=created/CONFIG.advancementEnergy,advancement=1+progress*progress/(1+progress),chunkScale=advancement**CONFIG.chunkExponent,growthScale=advancement**CONFIG.growthExponent,lifespanScale=advancement**CONFIG.lifespanExponent;
+  const chunk=this.p.chunk*chunkScale,lifespan=this.p.lifespan*lifespanScale;
+  return{advancement,chunk,growthScale,lifespan,depletionRate:chunk/lifespan,intakeRate:CONFIG.intakeRate*chunkScale,visualScale:Math.min(CONFIG.maxVisualScale,Math.sqrt(chunkScale))};
  }
  addEmbryo(theta=undefined){
   if(this.lives.length>=CAP)return null;
@@ -64,23 +67,34 @@ class Model {
  hazardRandom(){let t=this.hazardRng+=0x6D2B79F5;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);this.hazardRng>>>=0;return((t^(t>>>14))>>>0)/4294967296;}
  buildSchedule(){
   let warningAt=CONFIG.sunrise;
-  const bossEnd=CONFIG.sunrise+CONFIG.disturbance,bossStart=BOSS_START;
+  const bossEnd=CONFIG.sunrise+CONFIG.disturbance,bossStart=BOSS_START,bossWarningAt=bossStart-CONFIG.bossWarningLead;
   const stop=bossStart-CONFIG.warning;
+  const chooseTheta=at=>{
+   let theta=0,best=-1;const near=this.sinkSchedule.filter(x=>x.end>at);
+   for(let attempt=0;attempt<10;attempt++){
+    const candidate=this.hazardRandom()*TAU,distance=near.length?Math.min(...near.map(x=>Math.abs(delta(candidate,x.theta)))):Math.PI;
+    if(distance>best){best=distance;theta=candidate;}if(distance>.6)break;
+   }
+   return theta;
+  };
   while(warningAt+CONFIG.warning+18<stop){
    const progress=(warningAt-CONFIG.sunrise)/CONFIG.disturbance;
    const duration=18+this.hazardRandom()*9;
    if(warningAt+CONFIG.warning+duration>stop)break;
-   let theta=0,best=-1;
-   for(let attempt=0;attempt<10;attempt++){
-    const candidate=this.hazardRandom()*TAU;
-    const near=this.sinkSchedule.filter(x=>x.end>warningAt);
-    const distance=near.length?Math.min(...near.map(x=>Math.abs(delta(candidate,x.theta)))):Math.PI;
-    if(distance>best){best=distance;theta=candidate;}if(distance>.6)break;
-   }
+   const theta=chooseTheta(warningAt);
    const fraction=.21+.17*this.hazardRandom();
    this.sinkSchedule.push({id:this.sinkSchedule.length+1,theta,fraction,layer:fraction*(R+1)-1,warningAt,start:warningAt+CONFIG.warning,end:warningAt+CONFIG.warning+duration,duration,destroyed:0});
    warningAt+=(29-17*progress)*(.84+.32*this.hazardRandom());
   }
+  // Seeded late-wave sinks intensify the final third without reacting to
+  // sanctuary placement. The final one clears as the boss warning arrives.
+  for(let i=0;i<CONFIG.lateSinkFractions.length;i++){
+   const progress=CONFIG.lateSinkFractions[i];
+   const start=CONFIG.sunrise+CONFIG.disturbance*progress,warningAt=start-CONFIG.warning,maxDuration=bossWarningAt-start;
+   const rolledDuration=18+this.hazardRandom()*5,duration=i===CONFIG.lateSinkFractions.length-1?maxDuration:Math.min(rolledDuration,maxDuration),theta=chooseTheta(warningAt),fraction=.21+.17*this.hazardRandom();
+   this.sinkSchedule.push({id:0,late:true,theta,fraction,layer:fraction*(R+1)-1,warningAt,start,end:start+duration,duration,destroyed:0});
+  }
+  this.sinkSchedule.sort((a,b)=>a.start-b.start);for(let i=0;i<this.sinkSchedule.length;i++)this.sinkSchedule[i].id=i+1;
   for(let i=0;i<CONFIG.bossCount;i++){
    const fraction=CONFIG.bossFraction;
    this.sinkSchedule.push({id:this.sinkSchedule.length+1,boss:true,theta:wrap(-i/CONFIG.bossCount*TAU),fraction,layer:fraction*(R+1)-1,warningAt:stop+i*CONFIG.bossInterval,start:bossStart,end:bossEnd,duration:CONFIG.bossDuration,destroyed:0});
@@ -226,7 +240,9 @@ class Model {
   for(const e of this.lives){
    if(e.state==='failed'){this.failedEnergy+=e.soul;e.soul=0;this.deaths++;this.embryoDeaths++;this.tombs.push({id:e.id,theta:e.theta,t:this.t,reason:'embryo'});continue;}
    if(e.state==='person'){
-    const drain=e.returnRate,net=drain-e.growth;
+    // Creation is returned alongside a fixed share of stored soul, so
+    // crowding changes productivity without accidentally shortening life.
+    const net=e.depletionRate,drain=e.growth+net;
     const active=net>0?Math.min(dt,e.soul/net):dt;
     const creation=e.growth*active,returned=drain*active;
     this.created+=creation;e.created+=creation;e.soul+=creation-returned;e.personAge+=active;
