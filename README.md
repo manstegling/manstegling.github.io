@@ -52,6 +52,9 @@ but stays invisible until the font finishes loading. If loading fails, the
 fallback font is shown so the home link remains usable. Without JavaScript,
 the browser's `font-display: block` behavior applies.
 
+The `hyde.css` URL includes the Jekyll build timestamp so browsers fetch its
+updated font definition after deployment instead of reusing an older stylesheet.
+
 The font is distributed under the SIL Open Font License 1.1, included in
 `public/fonts/megrim/OFL.txt`. Sources:
 

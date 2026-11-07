@@ -31,13 +31,18 @@
     <link rel="stylesheet" href="{{ "/public/css/styles.css" | relative_url }}">
     <link rel="stylesheet" href="{{ "/public/css/poole.css" | relative_url }}">
     <link rel="stylesheet" href="{{ "/public/css/syntax.css" | relative_url }}">
-    <link rel="stylesheet" href="{{ "/public/css/hyde.css" | relative_url }}">
+    <!-- Refresh the logo styles after each deployment, including the local font definition. -->
+    <link rel="stylesheet" href="{{ "/public/css/hyde.css" | relative_url }}?v={{ site.time | date: '%s' }}">
     <script>
         // Reserve the logo's space while the font loads, without showing a fallback.
         // If loading fails (or the API is unavailable), keep the home link usable.
         if (document.fonts && document.fonts.load) {
             document.documentElement.classList.add('logo-font-loading');
-            document.fonts.load('bold 1em "Megrim"', {{ site.title | jsonify }}).then(function () {
+            document.fonts.load('bold 1em "Megrim"', {{ site.title | jsonify }}).then(function (faces) {
+                // An empty result means no @font-face matched; it is not a successful load.
+                if (faces.length === 0) {
+                    console.warn('The Megrim logo font definition is missing from the stylesheet.');
+                }
                 document.documentElement.classList.remove('logo-font-loading');
             }, function () {
                 document.documentElement.classList.remove('logo-font-loading');
