@@ -31,6 +31,15 @@
  * Update the foundational and global aspects of the page.
  */
 
+/* Megrim by Daniel Johnson, SIL Open Font License 1.1; see ../fonts/megrim/OFL.txt. */
+@font-face {
+  font-family: 'Megrim';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('../fonts/megrim/megrim-latin-v18.woff2') format('woff2');
+}
+
 html {
   font-family: "PT Sans", Helvetica, Arial, sans-serif;
 }
@@ -76,6 +85,10 @@ html {
 }
 
 /* About section */
+.logo-font-loading .sidebar-about h1 {
+  visibility: hidden;
+}
+
 .sidebar-about h1 {
     color: #fff;
     margin-top: 0;

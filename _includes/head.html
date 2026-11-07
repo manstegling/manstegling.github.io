@@ -6,6 +6,9 @@
     <!-- Enable responsiveness on mobile devices-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
+    <!-- Fetch the logo font early, from this site rather than Google Fonts. -->
+    <link rel="preload" href="{{ "/public/fonts/megrim/megrim-latin-v18.woff2" | relative_url }}" as="font" type="font/woff2" crossorigin>
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z9LG56LVWM"></script>
     <script>
@@ -29,7 +32,18 @@
     <link rel="stylesheet" href="{{ "/public/css/poole.css" | relative_url }}">
     <link rel="stylesheet" href="{{ "/public/css/syntax.css" | relative_url }}">
     <link rel="stylesheet" href="{{ "/public/css/hyde.css" | relative_url }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Megrim&display=swap">
+    <script>
+        // Reserve the logo's space while the font loads, without showing a fallback.
+        // If loading fails (or the API is unavailable), keep the home link usable.
+        if (document.fonts && document.fonts.load) {
+            document.documentElement.classList.add('logo-font-loading');
+            document.fonts.load('bold 1em "Megrim"', {{ site.title | jsonify }}).then(function () {
+                document.documentElement.classList.remove('logo-font-loading');
+            }, function () {
+                document.documentElement.classList.remove('logo-font-loading');
+            });
+        }
+    </script>
 
     <!-- Icons -->
     <!-- <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{ site.baseurl }}public/apple-touch-icon-144-precomposed.png">

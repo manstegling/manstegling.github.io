@@ -42,3 +42,18 @@ served directly. Do not add them to Jekyll's `exclude` list, since that would
 prevent publication entirely.
 
 These URLs are public; leaving files unlinked does not provide access control.
+
+## Logo font
+
+The sidebar logo uses Megrim by Daniel Johnson. Its Latin WOFF2 font is hosted
+in `public/fonts/megrim/` and preloaded in `_includes/head.html`, avoiding an
+external Google Fonts stylesheet and font request. The logo keeps its space
+but stays invisible until the font finishes loading. If loading fails, the
+fallback font is shown so the home link remains usable. Without JavaScript,
+the browser's `font-display: block` behavior applies.
+
+The font is distributed under the SIL Open Font License 1.1, included in
+`public/fonts/megrim/OFL.txt`. Sources:
+
+- Font: https://fonts.gstatic.com/s/megrim/v18/46kulbz5WjvLqJZVam_hVUdI1w.woff2
+- License: https://github.com/google/fonts/blob/main/ofl/megrim/OFL.txt
