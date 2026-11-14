@@ -1,0 +1,69 @@
+{
+  "captured": "2026-11-14",
+  "scope": "Post-extraction, before optimization; headless desktop scene profile, not a mobile or end-to-end game measurement",
+  "context": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+    "viewport": [
+      756,
+      469
+    ],
+    "stage": [
+      714,
+      648
+    ],
+    "dpr": 1,
+    "reducedMotion": false
+  },
+  "methodology": "Visible-tab wall-clock replay; 60 Hz fixed simulation, 30 FPS draw target; boss window 169\u2013178 simulation seconds; rAF intervals include display/vsync scheduling and are not draw duration.",
+  "regression": "PASS",
+  "backgroundEvents": 0,
+  "results": {
+    "energy": 427.7503760129757,
+    "completed": 24,
+    "tick": 11730
+  },
+  "timings": {
+    "step": {
+      "count": 11730,
+      "medianMs": 0.20000001788139343,
+      "p95Ms": 0.7000000178813934,
+      "p99Ms": 1.4000000059604645,
+      "maxMs": 25.5
+    },
+    "draw": {
+      "count": 4321,
+      "medianMs": 5.9000000059604645,
+      "p95Ms": 8.200000017881393,
+      "p99Ms": 9,
+      "maxMs": 36.400000005960464
+    },
+    "rafInterval": {
+      "count": 11698,
+      "medianMs": 16.69999999999709,
+      "p95Ms": 16.70000000001164,
+      "p99Ms": 16.80000000000291,
+      "maxMs": 300
+    },
+    "bossStep": {
+      "count": 540,
+      "medianMs": 0.3999999761581421,
+      "p95Ms": 0.9000000059604645,
+      "p99Ms": 1.699999988079071,
+      "maxMs": 3.5
+    },
+    "bossDraw": {
+      "count": 201,
+      "medianMs": 6.0999999940395355,
+      "p95Ms": 7.5999999940395355,
+      "p99Ms": 10,
+      "maxMs": 20
+    },
+    "bossRafInterval": {
+      "count": 540,
+      "medianMs": 16.699999999982538,
+      "p95Ms": 16.70000000001164,
+      "p99Ms": 16.800000000017462,
+      "maxMs": 16.800000000017462
+    }
+  }
+}

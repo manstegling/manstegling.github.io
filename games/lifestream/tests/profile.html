@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lifestream baseline profiler</title>
+<link rel="stylesheet" href="../style.css">
+<style>
+  .profile{max-width:900px;margin:auto;padding:20px}.profile h1{font-size:24px}
+  .profile p{line-height:1.6}.profile pre{white-space:pre-wrap;font-size:12px}
+  #stage{width:100%;height:650px;min-height:0;border:1px solid #263a3f}
+  @media(max-width:650px){#stage{height:108vw;max-height:540px}}
+</style>
+<main class="profile">
+  <h1>Lifestream baseline profiler</h1>
+  <p>Runs the saved seed-73 trace at normal speed with the production model and renderer.
+    Keep this tab visible. Rendering and simulation are timed separately; results include the boss window.
+    This measures the scene, without the production HUD/input overhead. Reload to reset.</p>
+  <button id="start">Run timed trace</button>
+  <button id="download" disabled>Download measurements</button>
+  <p id="status" role="status">Ready. A run takes about 196 seconds.</p>
+  <div class="stage" id="stage">
+    <canvas id="world"></canvas><canvas id="omens"></canvas>
+    <div class="boss-warning" id="bossWarning"><strong>Warning</strong><span>The world is destabilizing</span></div>
+  </div>
+  <pre id="report"></pre>
+</main>
+<script type="module" src="./profile.mjs"></script>
+</html>
