@@ -15,6 +15,12 @@ try {
     const callbacks=[];
     window.requestAnimationFrame=callback=>{callbacks.push(callback);return callbacks.length;};
     window.__frame=now=>{const callback=callbacks.shift();if(!callback)throw new Error('Missing animation callback');callback(now);};
+    const clear=CanvasRenderingContext2D.prototype.clearRect;
+    window.__draws=0;
+    CanvasRenderingContext2D.prototype.clearRect=function(...args){if(this.canvas.id==='world')window.__draws++;return clear.apply(this,args);};
+    const text=Object.getOwnPropertyDescriptor(Node.prototype,'textContent');
+    window.__hudUpdates=0;
+    Object.defineProperty(Node.prototype,'textContent',{...text,set(value){if(this.id==='energy')window.__hudUpdates++;text.set.call(this,value);}});
     let hidden=false;
     Object.defineProperty(document,'hidden',{get:()=>hidden,configurable:true});
     window.__hidden=value=>{hidden=value;document.dispatchEvent(new Event('visibilitychange'));};
@@ -124,6 +130,30 @@ try {
     assert($('world').getBoundingClientRect().width < 400, 'Portrait canvas must resize');
     assert($('world').width > 0, 'Portrait backing canvas must remain valid');
     passed('portrait layout resizes with CSS and canvas assets intact');
+
+    api.begin(73); api.pause(); win.__frame(10000);
+    const beforeBurst = win.__draws, beforeTime = api.model.t;
+    const portrait = canvas.getBoundingClientRect();
+    const portraitOuter = Math.min(portrait.width * .445, (portrait.height - 90) * .5);
+    const hover = {clientX: portrait.left + portrait.width / 2 + portraitOuter * .65, clientY: portrait.top + portrait.height / 2};
+    for (let i = 0; i < 100; i++) canvas.dispatchEvent(new win.PointerEvent('pointermove', {...hover, bubbles: true}));
+    assert(Math.abs(api.selection - Math.PI / 2) < 1e-9, 'Selection must update immediately during input bursts');
+    assert(win.__draws === beforeBurst, 'Pointer events must not draw synchronously');
+    win.__frame(10010);
+    assert(win.__draws === beforeBurst, 'Dirty input must respect draw cadence');
+    win.__frame(10040);
+    assert(win.__draws === beforeBurst + 1, 'Input burst must coalesce into one draw');
+    const idleHud = win.__hudUpdates;
+    win.__frame(10080);
+    assert(win.__draws === beforeBurst + 1 && api.model.t === beforeTime, 'Idle paused frames must neither draw nor simulate');
+    win.__frame(10200);
+    assert(win.__hudUpdates === idleHud && win.__draws === beforeBurst + 1, 'Idle paused frames must not repeatedly rewrite the HUD or draw');
+    canvas.dispatchEvent(new win.PointerEvent('pointermove', {...hover, bubbles: true}));
+    win.__hidden(true); win.__frame(10240);
+    assert(win.__draws === beforeBurst + 1, 'Hidden pages must not draw dirty input');
+    win.__hidden(false); win.__frame(10300);
+    assert(win.__draws === beforeBurst + 2, 'Dirty state must draw once after foregrounding');
+    passed('100 pointer events coalesce into one draw; paused idle and hidden frames skip drawing');
   } finally {
     if (previousRecords === null) win.localStorage.removeItem(recordKey);
     else win.localStorage.setItem(recordKey, previousRecords);
@@ -159,6 +189,49 @@ try {
   compare(snapshot(run.model, run.finalTick), baseline.final);
   passed('browser replay matches original Node baseline within documented float tolerances');
   passed('renderer leaves complete simulation state unchanged at all 17 checkpoints');
+  // Count actual sink disks/outlines drawn, including the stagger's last arrivals.
+  scene = new win.LifestreamGame.Model(73);
+  const context = doc.getElementById('world').getContext('2d');
+  const omenContext = doc.getElementById('omens').getContext('2d');
+  const originalFill = context.fill, originalStroke = omenContext.stroke;
+  let disks = 0, outlines = 0;
+  context.fill = function(...args) {
+    if (this.fillStyle === '#030208' || this.fillStyle === '#313a3a') disks++;
+    return originalFill.apply(this, args);
+  };
+  omenContext.stroke = function(...args) { outlines++; return originalStroke.apply(this, args); };
+  const {CONFIG} = win.LifestreamGame;
+  const bossStart = CONFIG.sunrise + CONFIG.disturbance - CONFIG.bossDuration;
+  const firstWarning = bossStart - CONFIG.bossWarningLead;
+  const checkAppearance = (time, expected, expectedOutlines) => {
+    scene.t = time; scene.updateSinks(); disks = 0; outlines = 0;
+    renderer.render();
+    assert(disks === expected, `Expected ${expected} boss disks at ${time}, got ${disks}`);
+    if (expectedOutlines !== undefined) assert(outlines === expectedOutlines, `Expected ${expectedOutlines} activation outlines at ${time}, got ${outlines}`);
+  };
+  try {
+    checkAppearance(firstWarning, 0);
+    assert(doc.getElementById('bossWarning').style.visibility === 'visible', 'Boss must retain the single shared warning');
+    checkAppearance(bossStart - .001, 0);
+    checkAppearance(bossStart, 1, 1);
+    checkAppearance(bossStart + CONFIG.bossInterval - 1e-6, 1);
+    checkAppearance(bossStart + CONFIG.bossInterval, 2);
+    checkAppearance(bossStart + 7.5 * CONFIG.bossInterval, 8);
+    checkAppearance(bossStart + 15 * CONFIG.bossInterval - 1e-6, 15);
+    checkAppearance(bossStart + 15 * CONFIG.bossInterval, 16);
+    checkAppearance(bossStart + .71, 16, 5);
+    checkAppearance(bossStart + 1, 16, 0);
+    checkAppearance(CONFIG.sunrise + CONFIG.disturbance - .001, 16);
+    checkAppearance(CONFIG.sunrise + CONFIG.disturbance, 0, 0);
+    const matchMedia = win.matchMedia;
+    try {
+      win.matchMedia = () => ({matches: true});
+      checkAppearance(bossStart, 1);
+      checkAppearance(bossStart + 7.5 * CONFIG.bossInterval, 8);
+      checkAppearance(CONFIG.sunrise + CONFIG.disturbance, 0);
+    } finally { win.matchMedia = matchMedia; }
+  } finally { context.fill = originalFill; omenContext.stroke = originalStroke; }
+  passed('boss disks enter every 30 ms with shared warning/expiry, including reduced motion and late activation outlines');
   const summarize = values => {
     const sorted = [...values].sort((a, b) => a - b);
     return {count: values.length, medianMs: sorted[Math.ceil(sorted.length * .5) - 1], p95Ms: sorted[Math.ceil(sorted.length * .95) - 1], p99Ms: sorted[Math.ceil(sorted.length * .99) - 1]};

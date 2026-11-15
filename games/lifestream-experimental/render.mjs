@@ -1,4 +1,5 @@
 import {CONFIG, TAU, N, R, BOSS_START, wrap, delta, clamp} from './model.mjs';
+import {TEXTURE_SIZE, createCloudPainter} from './cloud.mjs';
 
 // Browser-only presentation. Reads state; never advances the simulation.
 export function createRenderer({getState,isOverlayOpen}){
@@ -6,15 +7,18 @@ const $=id=>document.getElementById(id);
 const canvas=$('world'),ctx=canvas.getContext('2d'),omens=$('omens'),ox=omens.getContext('2d'),bossWarningEl=$('bossWarning');
 let lastDrain='';
 let W=0,H=0,cx=0,cy=0,inner=0,outer=0;
-const texture=document.createElement('canvas');texture.width=texture.height=320;
-const tc=texture.getContext('2d'),image=tc.createImageData(320,320),samples=[];
-for(let y=0;y<320;y++)for(let x=0;x<320;x++){
- const dx=(x+.5-160)/160,dy=(y+.5-160)/160,r=Math.hypot(dx,dy);if(r<=.65||r>=1)continue;
- const a=wrap(Math.atan2(dy,dx)+Math.PI/2)/TAU*N,i=Math.floor(a),fx=a-i,radial=(r-.65)/.35*(R+1)-1,j=Math.floor(radial),fy=radial-j;
- const index=(row,col)=>row<0||row>=R?-1:row*N+col%N;
- samples.push([(y*320+x)*4,index(j,i),index(j,i+1),index(j+1,i),index(j+1,i+1),fx,fy]);
+const texture=document.createElement('canvas');texture.width=texture.height=TEXTURE_SIZE;
+const tc=texture.getContext('2d'),image=tc.createImageData(TEXTURE_SIZE,TEXTURE_SIZE),paintCloud=createCloudPainter(image.data);
+function resize(){
+ const b=$('stage').getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);W=b.width;H=b.height;
+ const width=Math.round(W*d),height=Math.round(H*d);
+ // ResizeObserver and window resize can report the same size. Assigning width
+ // or height clears the canvas and reallocates its backing store even unchanged.
+ if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
+ if(omens.width!==width||omens.height!==height){omens.width=width;omens.height=height;}
+ ctx.setTransform(d,0,0,d,0,0);ox.setTransform(d,0,0,d,0,0);
+ cx=W/2;cy=H/2;outer=Math.min(W*.445,(H-(getState().artMode?25:90))*.5);inner=outer*.65;
 }
-function resize(){const b=$('stage').getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);W=b.width;H=b.height;canvas.width=Math.round(W*d);canvas.height=Math.round(H*d);ctx.setTransform(d,0,0,d,0,0);omens.width=canvas.width;omens.height=canvas.height;ox.setTransform(d,0,0,d,0,0);cx=W/2;cy=H/2;outer=Math.min(W*.445,(H-(getState().artMode?25:90))*.5);inner=outer*.65;}
 function point(theta,r){return{x:cx+Math.sin(theta)*r,y:cy-Math.cos(theta)*r};}
 function dot(x,y,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();}
 function circle(p,r,color,width=1,start=0,end=TAU){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.arc(p.x,p.y,r,start-Math.PI/2,end-Math.PI/2);ctx.stroke();}
@@ -32,8 +36,8 @@ function drawSanctuaryField(game,sanctuary,index,reduced,preview=false){
 }
 function render(){
  const {game,selected,artMode,sanctuaryArmed,paused}=getState();
- ctx.clearRect(0,0,W,H);const q=game.q,ref=CONFIG.initial/N*.5,gather=game.endingAt===null?0:clamp((game.t-game.endingAt)/3,0,1),reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
- for(const [k,a,b,c,d,fx,fy] of samples){const lo=(a<0?0:q[a])*(1-fx)+(b<0?0:q[b])*fx,hi=(c<0?0:q[c])*(1-fx)+(d<0?0:q[d])*fx,mass=lo*(1-fy)+hi*fy;image.data[k]=Math.round(100+137*gather);image.data[k+1]=Math.round(228-8*gather);image.data[k+2]=Math.round(176-34*gather);image.data[k+3]=Math.round(220*(1-Math.exp(-mass/ref*1.4)));}
+ ctx.clearRect(0,0,W,H);const gather=game.endingAt===null?0:clamp((game.t-game.endingAt)/3,0,1),reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+ paintCloud(game.q,gather);
  tc.putImageData(image,0,0);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(texture,cx-outer,cy-outer,outer*2,outer*2);
  circle({x:cx,y:cy},outer,'rgba(133,190,166,.17)');circle({x:cx,y:cy},outer*(.65+.35*7.5/9),'rgba(161,215,201,.16)',1);circle({x:cx,y:cy},inner,'rgba(177,201,183,.23)');
  for(let i=0;i<game.sanctuaries.length;i++)drawSanctuaryField(game,game.sanctuaries[i],i,reduced);
@@ -41,8 +45,15 @@ function render(){
  // Sparse current traces express the field's clockwise advection; not extra energy.
  for(let i=0;i<12;i++){const a=wrap(i/12*TAU+game.t*CONFIG.current/N*TAU),p=point(a,outer+6),a1=point(a-.022,outer+10),a2=point(a-.022,outer+2);ctx.beginPath();ctx.moveTo(a1.x,a1.y);ctx.lineTo(p.x,p.y);ctx.lineTo(a2.x,a2.y);ctx.strokeStyle='rgba(159,208,181,.25)';ctx.lineWidth=1;ctx.stroke();}
  if(!artMode){text('SOUL CLOUD · PROTECTED',cx,cy-outer-18,'#77998a',9);text('WORLD PLANE',cx,cy+inner-19,'#78968c',9);}
+ // Boss physics and expiry stay synchronized. Only the visible entrances
+ // advance around the ring; share their ages with the activation outlines.
+ const visibleSinks=[];let bossIndex=0;
  for(const sink of game.sinks){
-  const online=clamp((game.t-sink.start)/CONFIG.sinkActivationGrow,0,1),ease=1-(1-online)**3,scale=reduced?1:CONFIG.sinkWarningEnd+(1-CONFIG.sinkWarningEnd)*ease;
+  const appearanceAt=sink.start+(sink.boss?bossIndex++*CONFIG.bossInterval:0),age=game.t-appearanceAt;
+  if(age>=0)visibleSinks.push({sink,age});
+ }
+ for(const {sink,age} of visibleSinks){
+  const online=clamp(age/CONFIG.sinkActivationGrow,0,1),ease=1-(1-online)**3,scale=reduced?1:CONFIG.sinkWarningEnd+(1-CONFIG.sinkWarningEnd)*ease;
   const p=point(sink.theta,inner+sink.fraction*(outer-inner)),r=outer*CONFIG.sinkRadius*scale,remaining=clamp((sink.end-game.t)/sink.duration,0,1),neutralized=sink.neutralized;
   const halo=ctx.createRadialGradient(p.x,p.y,r*.6,p.x,p.y,r*2.5);halo.addColorStop(0,neutralized?'rgba(168,181,178,.35)':'rgba(185,95,245,.48)');halo.addColorStop(1,neutralized?'rgba(90,105,102,0)':'rgba(85,30,130,0)');dot(p.x,p.y,r*2.5,halo);
   dot(p.x,p.y,r,neutralized?'#313a3a':'#030208');circle(p,r,neutralized?'#c3cecb':'#d5a5ff',2);circle(p,r+5,neutralized?'rgba(177,192,188,.2)':'rgba(171,117,214,.22)',2);circle(p,r+5,neutralized?'#aebbb8':'#ce92fb',2.5,0,TAU*remaining);
@@ -72,7 +83,7 @@ function render(){
   }
   circle({x:cx,y:cy},inner+clamp(elapsed/4.5,0,1)*(outer-inner),'rgba(247,219,157,'+Math.max(0,.25-elapsed*.05)+')',1.5);
  }
- renderBossAlert(game,reduced);renderOmens(game,reduced);
+ renderBossAlert(game,reduced);renderOmens(game,reduced,visibleSinks);
 }
 function renderBossAlert(game,reduced){
  const age=game.t-(BOSS_START-CONFIG.bossWarningLead),duration=CONFIG.bossMessageDuration,visible=game.endingAt===null&&age>=0&&age<duration;
@@ -80,7 +91,7 @@ function renderBossAlert(game,reduced){
  const fadeIn=.18,fadeOut=.75,opacity=reduced?1:age<fadeIn?age/fadeIn:age>duration-fadeOut?(duration-age)/fadeOut:1;
  bossWarningEl.style.visibility='visible';bossWarningEl.style.opacity=String(clamp(opacity,0,1));bossWarningEl.style.transform='translateY(-50%) scale('+(reduced?1:.98+.02*clamp(age/fadeIn,0,1))+')';
 }
-function renderOmens(game,reduced){
+function renderOmens(game,reduced,visibleSinks){
  ox.clearRect(0,0,W,H);
  const warnings=game.warnings(),latestStart=Math.max(-Infinity,...game.sinkSchedule.filter(s=>s.start<=game.t).map(s=>s.start));
  const since=game.t-latestStart;
@@ -101,10 +112,10 @@ function renderOmens(game,reduced){
   ox.lineWidth=2;ox.strokeStyle='#aeb8b7';ox.setLineDash([3,4]);ox.beginPath();ox.arc(p.x,p.y,r,-Math.PI/2,TAU*remaining-Math.PI/2);ox.stroke();ox.setLineDash([]);
   ox.font='bold '+Math.max(9,18*scale)+'px system-ui';ox.textAlign='center';ox.fillStyle='#d3d9d7';ox.fillText('!',p.x,p.y+Math.max(3,6*scale));
  }
- if(since>=0&&since<CONFIG.sinkActivationGrow&&game.endingAt===null){
+ if(game.endingAt===null){
   // One soft violet-white flash; no repeated strobe. Reduced motion omits it.
-  if(!reduced&&since<.22&&game.sinks.some(s=>!s.neutralized&&game.t-s.start<CONFIG.sinkActivationGrow)){ox.fillStyle='rgba(233,216,255,'+(.34*(1-since/.22)**2)+')';ox.fillRect(0,0,W,H);}
-  for(const s of game.sinks)if(game.t-s.start<CONFIG.sinkActivationGrow){const p=point(s.theta,inner+s.fraction*(outer-inner)),f=(game.t-s.start)/CONFIG.sinkActivationGrow,ease=1-(1-f)**3,scale=reduced?1:CONFIG.sinkWarningEnd+(1-CONFIG.sinkWarningEnd)*ease;ox.strokeStyle=s.neutralized?'rgba(205,216,213,'+(1-f)+')':'rgba(238,210,255,'+(1-f)+')';ox.lineWidth=2;ox.beginPath();ox.arc(p.x,p.y,outer*CONFIG.sinkRadius*scale+(reduced?0:f*35),0,TAU);ox.stroke();}
+  if(!reduced&&since>=0&&since<.22&&game.sinks.some(s=>!s.neutralized&&game.t-s.start<CONFIG.sinkActivationGrow)){ox.fillStyle='rgba(233,216,255,'+(.34*(1-since/.22)**2)+')';ox.fillRect(0,0,W,H);}
+  for(const {sink:s,age} of visibleSinks)if(age<CONFIG.sinkActivationGrow){const p=point(s.theta,inner+s.fraction*(outer-inner)),f=age/CONFIG.sinkActivationGrow,ease=1-(1-f)**3,scale=reduced?1:CONFIG.sinkWarningEnd+(1-CONFIG.sinkWarningEnd)*ease;ox.strokeStyle=s.neutralized?'rgba(205,216,213,'+(1-f)+')':'rgba(238,210,255,'+(1-f)+')';ox.lineWidth=2;ox.beginPath();ox.arc(p.x,p.y,outer*CONFIG.sinkRadius*scale+(reduced?0:f*35),0,TAU);ox.stroke();}
  }
 }
 

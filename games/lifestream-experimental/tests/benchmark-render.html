@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Lifestream paired renderer benchmark</title>
+<link rel="stylesheet" href="../style.css">
+<style>body{padding:20px}#stage{width:714px;height:648px;min-height:0}pre{white-space:pre-wrap}</style>
+<h1>Paired renderer benchmark</h1>
+<p>Alternates the frozen original and current renderer on the same scenes; compares both canvases byte for byte.</p>
+<pre id="report">RUNNING</pre>
+<div class="stage" id="stage"><canvas id="world"></canvas><canvas id="omens"></canvas><div id="bossWarning" class="boss-warning"></div></div>
+<script type="module" src="./benchmark-render.mjs"></script>
+</html>

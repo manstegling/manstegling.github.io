@@ -1,0 +1,258 @@
+{
+  "captured": "2026-11-14",
+  "beforeCommit": "2d84360",
+  "after": "working tree optimization changes",
+  "scope": "Headless desktop and Node development measurements; not real-device mobile or battery evidence",
+  "pairedRenderer": {
+    "pixelChecks": 17,
+    "context": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+      "dpr": 1,
+      "stage": [
+        714,
+        648
+      ]
+    },
+    "methodology": "Alternating synchronous draws on the same seeded scenes; warmup excluded; no vsync/presentation measurement.",
+    "timings": {
+      "before": {
+        "count": 510,
+        "medianMs": 3.800000011920929,
+        "p95Ms": 5.199999988079071,
+        "p99Ms": 7.5
+      },
+      "after": {
+        "count": 510,
+        "medianMs": 2.5999999940395355,
+        "p95Ms": 3.800000011920929,
+        "p99Ms": 5.0999999940395355
+      },
+      "bossBefore": {
+        "count": 150,
+        "medianMs": 3.9000000059604645,
+        "p95Ms": 5,
+        "p99Ms": 7.5
+      },
+      "bossAfter": {
+        "count": 150,
+        "medianMs": 2.699999988079071,
+        "p95Ms": 4,
+        "p99Ms": 5.0999999940395355
+      }
+    }
+  },
+  "pairedModels": {
+    "node": "v24.14.0",
+    "methodology": "Alternating fixed steps; 1.5-second plant cadence; sanctuary attempts every 10 seconds; exact complete-state hashes and conservation checks.",
+    "results": [
+      {
+        "seed": 0,
+        "checkpoints": 21,
+        "energy": 353.50606359697986,
+        "completed": 19,
+        "before": {
+          "medianMs": 0.0697930000001179,
+          "p95Ms": 0.1752119999999877,
+          "p99Ms": 0.5223859999999831,
+          "totalMs": 1119.216450999989
+        },
+        "after": {
+          "medianMs": 0.0634820000000218,
+          "p95Ms": 0.16858099999990372,
+          "p99Ms": 0.5064479999996365,
+          "totalMs": 1045.4831699999768
+        }
+      },
+      {
+        "seed": 1,
+        "checkpoints": 21,
+        "energy": 542.5744120786611,
+        "completed": 36,
+        "before": {
+          "medianMs": 0.09171200000037061,
+          "p95Ms": 0.1709129999999277,
+          "p99Ms": 0.4087919999992664,
+          "totalMs": 1269.9215020000397
+        },
+        "after": {
+          "medianMs": 0.07246800000029907,
+          "p95Ms": 0.1357670000006692,
+          "p99Ms": 0.2916049999994357,
+          "totalMs": 1016.2685939999715
+        }
+      },
+      {
+        "seed": 73,
+        "checkpoints": 21,
+        "energy": 471.7880564431643,
+        "completed": 31,
+        "before": {
+          "medianMs": 0.08012099999905331,
+          "p95Ms": 0.1562370000001465,
+          "p99Ms": 0.4591080000000147,
+          "totalMs": 1156.2123070000243
+        },
+        "after": {
+          "medianMs": 0.06618699999853561,
+          "p95Ms": 0.1302770000002056,
+          "p99Ms": 0.30325900000025285,
+          "totalMs": 984.3690220000435
+        }
+      },
+      {
+        "seed": 4294967295,
+        "checkpoints": 21,
+        "energy": 377.22844673066413,
+        "completed": 21,
+        "before": {
+          "medianMs": 0.06748200000038196,
+          "p95Ms": 0.12556100000074366,
+          "p99Ms": 0.30229200000030687,
+          "totalMs": 972.708888999945
+        },
+        "after": {
+          "medianMs": 0.061340000000200234,
+          "p95Ms": 0.11378500000137137,
+          "p99Ms": 0.25942200000099547,
+          "totalMs": 881.3344229999402
+        }
+      }
+    ]
+  },
+  "normalSpeedBefore": {
+    "captured": "2026-11-14",
+    "scope": "Post-extraction, before optimization; headless desktop scene profile, not a mobile or end-to-end game measurement",
+    "context": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+      "viewport": [
+        756,
+        469
+      ],
+      "stage": [
+        714,
+        648
+      ],
+      "dpr": 1,
+      "reducedMotion": false
+    },
+    "methodology": "Visible-tab wall-clock replay; 60 Hz fixed simulation, 30 FPS draw target; boss window 169\u2013178 simulation seconds; rAF intervals include display/vsync scheduling and are not draw duration.",
+    "regression": "PASS",
+    "backgroundEvents": 0,
+    "results": {
+      "energy": 427.7503760129757,
+      "completed": 24,
+      "tick": 11730
+    },
+    "timings": {
+      "step": {
+        "count": 11730,
+        "medianMs": 0.20000001788139343,
+        "p95Ms": 0.7000000178813934,
+        "p99Ms": 1.4000000059604645,
+        "maxMs": 25.5
+      },
+      "draw": {
+        "count": 4321,
+        "medianMs": 5.9000000059604645,
+        "p95Ms": 8.200000017881393,
+        "p99Ms": 9,
+        "maxMs": 36.400000005960464
+      },
+      "rafInterval": {
+        "count": 11698,
+        "medianMs": 16.69999999999709,
+        "p95Ms": 16.70000000001164,
+        "p99Ms": 16.80000000000291,
+        "maxMs": 300
+      },
+      "bossStep": {
+        "count": 540,
+        "medianMs": 0.3999999761581421,
+        "p95Ms": 0.9000000059604645,
+        "p99Ms": 1.699999988079071,
+        "maxMs": 3.5
+      },
+      "bossDraw": {
+        "count": 201,
+        "medianMs": 6.0999999940395355,
+        "p95Ms": 7.5999999940395355,
+        "p99Ms": 10,
+        "maxMs": 20
+      },
+      "bossRafInterval": {
+        "count": 540,
+        "medianMs": 16.699999999982538,
+        "p95Ms": 16.70000000001164,
+        "p99Ms": 16.800000000017462,
+        "maxMs": 16.800000000017462
+      }
+    }
+  },
+  "normalSpeedAfter": {
+    "context": {
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+      "viewport": [
+        756,
+        469
+      ],
+      "stage": [
+        714,
+        648
+      ],
+      "dpr": 1,
+      "reducedMotion": false
+    },
+    "methodology": "Visible-tab wall-clock replay; 60 Hz fixed simulation, 30 FPS draw target; boss window 169\u2013178 simulation seconds; rAF intervals include display/vsync scheduling and are not draw duration.",
+    "regression": "PASS",
+    "backgroundEvents": 0,
+    "results": {
+      "energy": 427.7503760129757,
+      "completed": 24,
+      "tick": 11730
+    },
+    "timings": {
+      "step": {
+        "count": 11730,
+        "medianMs": 0.19999998807907104,
+        "p95Ms": 0.699999988079071,
+        "p99Ms": 1.4000000059604645,
+        "maxMs": 16.299999982118607
+      },
+      "draw": {
+        "count": 4325,
+        "medianMs": 4.5999999940395355,
+        "p95Ms": 7,
+        "p99Ms": 8,
+        "maxMs": 13.799999982118607
+      },
+      "rafInterval": {
+        "count": 11720,
+        "medianMs": 16.69999999999709,
+        "p95Ms": 16.70000000001164,
+        "p99Ms": 16.80000000000291,
+        "maxMs": 133.3
+      },
+      "bossStep": {
+        "count": 540,
+        "medianMs": 0.29999998211860657,
+        "p95Ms": 0.800000011920929,
+        "p99Ms": 1.4000000059604645,
+        "maxMs": 4.199999988079071
+      },
+      "bossDraw": {
+        "count": 198,
+        "medianMs": 4.9000000059604645,
+        "p95Ms": 6.5999999940395355,
+        "p99Ms": 7.0999999940395355,
+        "maxMs": 9.800000011920929
+      },
+      "bossRafInterval": {
+        "count": 540,
+        "medianMs": 16.699999999982538,
+        "p95Ms": 16.70000000001164,
+        "p99Ms": 16.800000000017462,
+        "maxMs": 16.800000000017462
+      }
+    }
+  }
+}

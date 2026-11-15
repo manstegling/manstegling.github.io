@@ -7,6 +7,7 @@ const wrap=a=>((a%TAU)+TAU)%TAU;
 const delta=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
 const sum=a=>a.reduce((s,x)=>s+x,0);
 const clamp=(v,l,h)=>Math.max(l,Math.min(h,v));
+const growthFor=(neighbours,growthScale)=>growthScale*(CONFIG.growthMin+(CONFIG.growthMax-CONFIG.growthMin)/(1+neighbours/CONFIG.crowdingScale));
 class Model {
  constructor(seed=73,initial=CONFIG.initial,params={}) {
   this.p={...DEFAULTS,...params};this.rng=seed>>>0;this.initial=initial;this.t=0;this.created=0;this.destroyed=0;this.failedEnergy=0;this.completed=0;this.gathered=0;this.gatheredEnergy=0;this.finished=false;this.endingAt=null;this.actions=[];this.plantTimes=[];this.peakPlacements15=0;this.born=0;this.deaths=0;this.embryoDeaths=0;this.id=0;
@@ -90,7 +91,7 @@ class Model {
   if(active.length!==this.sinks.length||active.some((s,i)=>s!==this.sinks[i])){this.sinks=active;this.cacheSinkForces();}
  }
  neighbourhoodAt(theta,excluded=null){let count=0;for(const other of this.lives)if(other.state==='person'&&other.id!==excluded){const d=delta(other.theta,theta)/CONFIG.neighbourhood;count+=Math.exp(-.5*d*d);}return count;}
- growthAt(theta,excluded=null,growthScale=1){return growthScale*(CONFIG.growthMin+(CONFIG.growthMax-CONFIG.growthMin)/(1+this.neighbourhoodAt(theta,excluded)/CONFIG.crowdingScale));}
+ growthAt(theta,excluded=null,growthScale=1){return growthFor(this.neighbourhoodAt(theta,excluded),growthScale);}
  localSupply(theta){const mid=Math.round(wrap(theta)/TAU*N);let amount=0;for(let j=0;j<2;j++)for(let off=-4;off<=4;off++){const k=j*N+(mid+off+N)%N;if(!this.blockedIntake(theta,k))amount+=this.q[k];}return amount;}
  gather(){
   if(this.endingAt!==null)return;
@@ -150,19 +151,23 @@ class Model {
   // Conservative upwind drift plus symmetric diffusion. DT satisfies the
   // outgoing-flux bound at every allowed control setting; no mass clipping.
   const diff=this.p.diffusion*.65;
-  for(let j=0;j<R;j++)for(let i=0;i<N;i++){
-   const a=j*N+i,b=j*N+(i+1)%N;
+  for(let j=0;j<R;j++){
+   // Layer geometry is identical for all angular cells; preserve flux arithmetic.
    const reach=.20+.80*Math.exp(-j/2.1),current=CONFIG.current*(j/(R-1))**2;
-   const v=clamp(current+reach*(this.angular[i]+this.angular[(i+1)%N])*.5+this.p.sinkPull*(this.sinkAngular[a]+this.sinkAngular[b])*.5,-12,12);
-   const flux=dt*(diff*(this.q[a]-this.q[b])+v*(v>=0?this.q[a]:this.q[b]));
-   this.next[a]-=flux;this.next[b]+=flux;
-   if(j<R-1){
-    const c=a+N,reach=.20+.80*Math.exp(-(j+.5)/2.1),vr=clamp(2.5*this.p.gravity-13*reach*this.p.attraction*this.well[i]+this.p.sinkPull*this.sinkRadial[a],-12,12);
-    // The outermost layer is a resting reservoir. No passive inward leak:
-    // only net embryo attraction can withdraw it; return flow remains free.
-    const mixing=j===R-2?Math.max(0,this.q[a]-this.q[c]):this.q[a]-this.q[c];
-    const radial=dt*(diff*mixing+vr*(vr>=0?this.q[a]:this.q[c]));
-    this.next[a]-=radial;this.next[c]+=radial;
+   const radialReach=.20+.80*Math.exp(-(j+.5)/2.1);
+   for(let i=0;i<N;i++){
+    const a=j*N+i,b=j*N+(i+1)%N;
+    const v=clamp(current+reach*(this.angular[i]+this.angular[(i+1)%N])*.5+this.p.sinkPull*(this.sinkAngular[a]+this.sinkAngular[b])*.5,-12,12);
+    const flux=dt*(diff*(this.q[a]-this.q[b])+v*(v>=0?this.q[a]:this.q[b]));
+    this.next[a]-=flux;this.next[b]+=flux;
+    if(j<R-1){
+     const c=a+N,vr=clamp(2.5*this.p.gravity-13*radialReach*this.p.attraction*this.well[i]+this.p.sinkPull*this.sinkRadial[a],-12,12);
+     // The outermost layer is a resting reservoir. No passive inward leak:
+     // only net embryo attraction can withdraw it; return flow remains free.
+     const mixing=j===R-2?Math.max(0,this.q[a]-this.q[c]):this.q[a]-this.q[c];
+     const radial=dt*(diff*mixing+vr*(vr>=0?this.q[a]:this.q[c]));
+     this.next[a]-=radial;this.next[c]+=radial;
+    }
    }
   }
   const swap=this.q;this.q=this.next;this.next=swap;
@@ -199,7 +204,8 @@ class Model {
   this.t+=dt;
   this.updateSinks();
   this.absorbSinks();this.fieldStep(dt);this.absorbSinks();
-  for(const e of this.lives)if(e.state==='person'){e.neighbours=this.neighbourhoodAt(e.theta,e.id);e.growth=this.growthAt(e.theta,e.id,e.growthScale);}
+  // No life changes between these reads; reuse the same neighbourhood sum.
+  for(const e of this.lives)if(e.state==='person'){e.neighbours=this.neighbourhoodAt(e.theta,e.id);e.growth=growthFor(e.neighbours,e.growthScale);}
   for(const e of this.lives)if(e.state!=='person')e.age+=dt;
   this.absorbEmbryos(dt);
   for(const e of this.lives){

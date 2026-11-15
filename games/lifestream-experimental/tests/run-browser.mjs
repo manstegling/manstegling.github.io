@@ -1,7 +1,7 @@
 // Optional dependency-free Chrome driver. Start a static server separately.
 // Node 24+ supplies WebSocket; CHROME_BIN overrides the executable path.
 import {spawn} from 'node:child_process';
-import {mkdtemp, rm} from 'node:fs/promises';
+import {mkdtemp, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 
@@ -9,8 +9,9 @@ const executable = process.env.CHROME_BIN || (process.platform === 'darwin'
   ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
   : 'google-chrome');
 const profileMode = process.argv.includes('--profile');
+const cpuProfilePath = process.argv.find(arg => arg.startsWith('--cpu='))?.slice(6);
 const url = profileMode ? 'http://127.0.0.1:8000/games/lifestream/tests/profile.html?autorun=1'
-  : process.argv[2] || 'http://127.0.0.1:8000/games/lifestream/tests/browser.html';
+  : process.argv.slice(2).find(arg => !arg.startsWith('--')) || 'http://127.0.0.1:8000/games/lifestream/tests/browser.html';
 const profile = await mkdtemp(join(tmpdir(), 'lifestream-browser-'));
 let socket, browser, timeout;
 const pending = new Map();
@@ -49,6 +50,10 @@ try {
   const {targetId} = await send('Target.createTarget', {url: 'about:blank'});
   const {sessionId} = await send('Target.attachToTarget', {targetId, flatten: true});
   await send('Page.enable', {}, sessionId);
+  if (cpuProfilePath) {
+    await send('Profiler.enable', {}, sessionId);
+    await send('Profiler.start', {}, sessionId);
+  }
   await send('Page.navigate', {url}, sessionId);
   const deadline = Date.now() + (profileMode ? 300000 : 45000);
   let result;
@@ -59,6 +64,10 @@ try {
     await new Promise(resolve => setTimeout(resolve, 100));
   }
   console.log(result?.report || JSON.stringify(result));
+  if (cpuProfilePath) {
+    const {profile} = await send('Profiler.stop', {}, sessionId);
+    await writeFile(cpuProfilePath, JSON.stringify(profile));
+  }
   if (!result?.title?.startsWith('PASS')) process.exitCode = 1;
 } finally {
   clearTimeout(timeout);
