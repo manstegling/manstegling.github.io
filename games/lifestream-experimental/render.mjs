@@ -33,7 +33,9 @@ function resize(){
   cy=H/2;outer=Math.min(W*.445,(H-(artMode?25:90))*.5);
  }
  inner=outer*WORLD_PLANE_RATIO;
+ $('stage').style.setProperty('--world-center-x',cx+'px');
  $('stage').style.setProperty('--world-center-y',cy+'px');
+ $('stage').style.setProperty('--world-radius',outer+'px');
 }
 function point(theta,r){return{x:cx+Math.sin(theta)*r,y:cy-Math.cos(theta)*r};}
 function dot(x,y,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();}

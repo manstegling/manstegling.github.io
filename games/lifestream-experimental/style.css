@@ -91,7 +91,7 @@ body.art-mode { overflow: hidden; }
 
 /* Preserve the brief grayscale inhale and the unfiltered warning overlay. */
 body { --drain: 0; }
-.stage::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(ellipse at center, #11272a 0, #0d1d23 50%, #0a151b 100%); filter: grayscale(var(--drain)); pointer-events: none; }
+.stage::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle var(--world-radius, 240px) at var(--world-center-x, 50%) var(--world-center-y, 50%), #11272a 0, #0d1d23 90%, #0a151b 110%, #081319 158%); filter: grayscale(var(--drain)); pointer-events: none; }
 .game-hud, .game-controls, .scene-message, .toast, .overlay .card, #world { filter: grayscale(var(--drain)); }
 
 @media (max-width: 360px) {
