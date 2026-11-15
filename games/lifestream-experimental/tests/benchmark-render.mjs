@@ -7,7 +7,7 @@ const report = document.getElementById('report');
 try {
   const trace = await fetch('./fixtures/seed-73.trace.json').then(r => r.json());
   let game;
-  const options = {getState: () => ({game, selected: .45, artMode: false, sanctuaryArmed: false, paused: true}), isOverlayOpen: () => false};
+  const options = {getState: () => ({game, selected: .45, artMode: true, sanctuaryArmed: false, paused: true}), isOverlayOpen: () => false};
   const before = createBeforeRenderer(options);
   const beforeCanvases = ['world', 'omens'].map(id => document.getElementById(id));
   // Independent canvases avoid shared drawing state and readback/backend transitions.

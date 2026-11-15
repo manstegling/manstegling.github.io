@@ -18,6 +18,9 @@ try {
     const clear=CanvasRenderingContext2D.prototype.clearRect;
     window.__draws=0;
     CanvasRenderingContext2D.prototype.clearRect=function(...args){if(this.canvas.id==='world')window.__draws++;return clear.apply(this,args);};
+    const fillText=CanvasRenderingContext2D.prototype.fillText;
+    window.__tapDraws=[];
+    CanvasRenderingContext2D.prototype.fillText=function(value,x,y,...args){if(value==='Tap')window.__tapDraws.push({x,y});return fillText.call(this,value,x,y,...args);};
     const text=Object.getOwnPropertyDescriptor(Node.prototype,'textContent');
     window.__hudUpdates=0;
     Object.defineProperty(Node.prototype,'textContent',{...text,set(value){if(this.id==='energy')window.__hudUpdates++;text.set.call(this,value);}});
@@ -38,7 +41,9 @@ try {
   assert(api && win.LifestreamGame, 'Both compatibility APIs must load');
   assert($('world').width > 0 && $('world').height > 0, 'Canvas must be sized');
   assert(win.getComputedStyle($('stage')).position === 'relative', 'External CSS must load');
-  passed('static entry, CSS and native modules load under /games/lifestream/');
+  assert($('welcome').hidden && $('helpOverlay').hidden, 'The game must open directly to the world');
+  assert(!doc.querySelector('.sidebar') && !doc.querySelector('.stage-center'), 'Simulation panels and opening prose must be removed');
+  passed('static entry, CSS and native modules load under /games/lifestream-experimental/');
 
   const recordKey = 'lifestream-v4-records';
   const previousRecords = win.localStorage.getItem(recordKey);
@@ -46,9 +51,13 @@ try {
     api.begin(73);
     win.__frame(1000); win.__frame(1100);
     assert(api.model.t === 0, 'Time must wait for first planting');
+    const tap = win.__tapDraws.at(-1), startGeometry = api.geometry;
+    assert(tap && tap.x === startGeometry.cx && Math.abs(tap.y - (startGeometry.cy - (startGeometry.inner + startGeometry.outer) / 2)) < 1e-9, 'Plain Tap cue must sit in the upper middle of the band');
+    const tapsBeforeStart = win.__tapDraws.length;
     $('plant').click();
     assert(api.model.lives.length === 1 && api.model.t === 0, 'First planting starts at time zero');
     win.__frame(1200); win.__frame(1250);
+    assert(win.__tapDraws.length === tapsBeforeStart, 'Tap cue must disappear after first planting');
     assert(Math.abs(api.model.t - .05) < 1e-9, 'Frame must advance three fixed ticks');
     win.__frame(2250);
     assert(api.model.t <= .15 + 1e-9, 'Large elapsed frames must retain the 100ms cap');
@@ -67,7 +76,7 @@ try {
     win.__hidden(true); win.__frame(3100);
     win.__hidden(false); win.__frame(5000);
     assert(api.model.t === beforeBackground, 'Backgrounding must pause without automatic catch-up');
-    assert($('pause').textContent === 'Resume', 'Backgrounding must require explicit resume');
+    assert($('pause').getAttribute('aria-label') === 'Resume', 'Backgrounding must require explicit resume');
     passed('pause/resume and background/foreground discard accumulated time');
 
     $('pause').click();
@@ -86,8 +95,8 @@ try {
     // Actual canvas click uses the same geometric selection path as touch-generated clicks.
     api.begin(73);
     const canvas = $('world'), rect = canvas.getBoundingClientRect();
-    const outer = Math.min(rect.width * .445, (rect.height - 90) * .5);
-    const point = {clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 - outer * .65};
+    const {cx,cy,inner}=api.geometry;
+    const point = {clientX: rect.left + cx, clientY: rect.top + cy - inner};
     canvas.dispatchEvent(new win.MouseEvent('click', {...point, bubbles: true}));
     assert(api.model.lives.length === 1, 'Canvas click must plant');
     api.model.created = 150; // Isolated UI eligibility setup, never used as a conservation fixture.
@@ -99,9 +108,25 @@ try {
     api.model.created = 300;
     canvas.dispatchEvent(new win.MouseEvent('contextmenu', {...point, bubbles: true, cancelable: true}));
     assert(api.model.sanctuaries.length === 2, 'Right-click must deploy');
+    api.model.created=450; api.pause(); $('pause').click();
+    const sanctuary=$('sanctuaryButton'),capture=sanctuary.setPointerCapture;
+    sanctuary.setPointerCapture=()=>{}; // Synthetic events have no native active pointer.
+    try {
+      const button=sanctuary.getBoundingClientRect();
+      sanctuary.dispatchEvent(new win.PointerEvent('pointerdown',{pointerId:11,button:0,clientX:button.left+20,clientY:button.top+20}));
+      sanctuary.dispatchEvent(new win.PointerEvent('pointermove',{pointerId:11,...point,cancelable:true}));
+      sanctuary.dispatchEvent(new win.PointerEvent('pointerup',{pointerId:11,...point,cancelable:true}));
+      sanctuary.click();
+      assert(api.model.sanctuaries.length===3 && sanctuary.getAttribute('aria-pressed')==='false', 'Dock drag must deploy once and suppress its follow-up click');
+      api.model.created=600; api.pause(); $('pause').click();
+      sanctuary.dispatchEvent(new win.PointerEvent('pointerdown',{pointerId:12,button:0,clientX:button.left+20,clientY:button.top+20}));
+      sanctuary.dispatchEvent(new win.PointerEvent('pointermove',{pointerId:12,...point,cancelable:true}));
+      sanctuary.dispatchEvent(new win.PointerEvent('pointercancel',{pointerId:12}));
+      assert(api.model.sanctuaries.length===3 && sanctuary.getAttribute('aria-pressed')==='false', 'Cancelled dock drag must not deploy');
+    } finally { sanctuary.setPointerCapture=capture; }
     // Avoid requesting native fullscreen in an automated test; test the viewport fallback.
     $('stage').requestFullscreen = () => Promise.reject(new Error('Test viewport fallback'));
-    $('art').click();
+    $('help').click(); $('art').click();
     assert(doc.body.classList.contains('art-mode'), 'Art view must enter');
     doc.dispatchEvent(new win.KeyboardEvent('keydown', {code: 'Escape', bubbles: true}));
     assert(!doc.body.classList.contains('art-mode'), 'Escape must exit art view');
@@ -134,8 +159,8 @@ try {
     api.begin(73); api.pause(); win.__frame(10000);
     const beforeBurst = win.__draws, beforeTime = api.model.t;
     const portrait = canvas.getBoundingClientRect();
-    const portraitOuter = Math.min(portrait.width * .445, (portrait.height - 90) * .5);
-    const hover = {clientX: portrait.left + portrait.width / 2 + portraitOuter * .65, clientY: portrait.top + portrait.height / 2};
+    const geometry=api.geometry;
+    const hover = {clientX: portrait.left + geometry.cx + geometry.inner, clientY: portrait.top + geometry.cy};
     for (let i = 0; i < 100; i++) canvas.dispatchEvent(new win.PointerEvent('pointermove', {...hover, bubbles: true}));
     assert(Math.abs(api.selection - Math.PI / 2) < 1e-9, 'Selection must update immediately during input bursts');
     assert(win.__draws === beforeBurst, 'Pointer events must not draw synchronously');
@@ -154,6 +179,44 @@ try {
     win.__hidden(false); win.__frame(10300);
     assert(win.__draws === beforeBurst + 2, 'Dirty state must draw once after foregrounding');
     passed('100 pointer events coalesce into one draw; paused idle and hidden frames skip drawing');
+
+    for (const [width,height] of [[320,568],[390,844],[768,1024],[1440,900],[2560,1440],[3840,2160],[844,390],[390,844]]) {
+      frame.style.width=width+'px'; frame.style.height=height+'px';
+      await new Promise(resolve=>setTimeout(resolve,0)); win.dispatchEvent(new win.Event('resize'));
+      const stage=$('stage').getBoundingClientRect(),hud=$('gameHud').getBoundingClientRect(),controls=$('gameControls').getBoundingClientRect(),g=api.geometry;
+      assert(Math.abs(stage.height-height)<1 && Math.abs(stage.width-width)<1, `Playfield must fill ${width}x${height}`);
+      assert(doc.documentElement.scrollWidth<=width+1 && doc.documentElement.scrollHeight<=height+1, `Game must not scroll at ${width}x${height}`);
+      assert(g.cy-g.outer>=hud.bottom-stage.top && g.cy+g.outer<=controls.top-stage.top, `Ring must clear HUD and controls at ${width}x${height}`);
+      const left=Math.max(hud.left,controls.left)-stage.left,right=Math.min(hud.right,controls.right)-stage.left;
+      assert(g.cx-g.outer-10>=left && g.cx+g.outer+10<=right, `World and current traces must stay inside the HUD column at ${width}x${height}`);
+      assert(Math.abs(g.cx-(left+right)/2)<1, `World must align with the HUD center at ${width}x${height}`);
+      assert(Math.abs(canvas.getBoundingClientRect().width-width)<1, `Background canvas must still span ${width}px`);
+      for (const button of $('gameControls').querySelectorAll('button')) {
+        const b=button.getBoundingClientRect();
+        assert(b.width>=44 && b.height>=44 && b.left>=0 && b.right<=width && b.bottom<=height, `Controls must fit with touch targets at ${width}x${height}`);
+      }
+    }
+    passed('full-screen layout has no scrolling or ring/control overlap across phone, tablet, landscape and desktop');
+
+    api.begin(73); $('plant').click(); api.pause();
+    $('help').click();
+    assert($('stage').inert && !$('helpOverlay').hidden, 'Menu must isolate the paused game from focus');
+    $('worldDetails').open=true;
+    await new Promise(resolve=>setTimeout(resolve,0));
+    assert($('population').textContent.includes('seed'), 'Detailed readouts must remain available on demand');
+    $('chooseWorld').click();
+    assert(!$('welcome').hidden && $('helpOverlay').hidden, 'World selection must be reachable from the menu');
+    $('cancelWorld').click();
+    assert($('welcome').hidden && !$('stage').inert && $('pause').getAttribute('aria-label')==='Resume', 'Cancel must restore a previously paused world');
+    $('help').click(); $('chooseWorld').click(); $('worldSeed').value='81'; $('begin').click();
+    assert(api.model.t===0 && api.model.actions.length===0 && $('runSeed').textContent==='World 81', 'World selection must reset to a fresh unstarted world');
+    $('plant').click(); api.pause();
+    for (const [time,text] of [[182,'3'],[183,'2'],[184,'1'],[185,'Planting complete']]) {
+      api.model.t=time; api.step(0); $('pause').click();
+      assert($('stageStatus').textContent===text, `Cutoff cue must use simulation time at ${time}`);
+    }
+    assert($('plant').disabled, 'Plant control must close at the model cutoff');
+    passed('menu details, world picker/cancel and planting cutoff stay usable without changing game rules');
   } finally {
     if (previousRecords === null) win.localStorage.removeItem(recordKey);
     else win.localStorage.setItem(recordKey, previousRecords);

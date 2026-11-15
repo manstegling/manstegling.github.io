@@ -1,17 +1,77 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#081319"><title>Lifestream · A world worth tending</title>
-<link rel="stylesheet" href="./style.css"></head><body><main class="shell">
-<header><div><div class="eyebrow">A world worth tending</div><h1>Lifestream <span class="tagline">Begin a life. Follow the current.</span></h1></div><nav aria-label="Game controls"><button id="help">How to play</button><button id="pause" disabled>Pause</button><button id="art" aria-pressed="false">Art view</button></nav></header>
-<div class="phase-line"><span><b class="phase-name" id="phase">The disturbance</b> <span id="phaseHint">A world worth protecting.</span></span><span id="phaseTime">Place the first life to begin</span></div><div class="timeline" aria-label="World journey progress"><div style="flex:1"><i id="journeyProgress"></i></div></div>
-<div class="hud"><div class="metric"><label>Energy created</label><div class="value" id="energy">0.0</div><small>New energy made by living people</small></div><div class="metric"><label>Completed lives</label><div class="value" id="completed">0</div><small id="population">No lives begun yet</small></div><div class="metric"><label>Until gathering</label><div class="value" id="time">3:11</div><small id="runSeed">World 73</small></div></div>
-<div class="board"><section class="stage" id="stage" aria-label="World and circulating soul cloud"><canvas id="world" aria-label="Tap around the inner world ring to plant. Right-click or Control-click to deploy an available sanctuary. Violet sinks pull in and destroy unprotected cloud energy."></canvas><canvas id="omens" aria-hidden="true" style="pointer-events:none"></canvas><div id="bossWarning" class="boss-warning" aria-hidden="true"><strong>Warning</strong><span>The world is destabilizing</span></div><div class="stage-caption"><span id="stageStatus">Awaiting the first life</span><span>CLOCKWISE CURRENT ↻</span></div><div class="stage-center"><div class="symbol" id="centerSymbol">✧</div><strong id="centerTitle">A world begins</strong><p id="centerText">Small lives can start<br>something lasting.</p></div><div class="stage-bottom" id="stageHint">Tap the inner ring to begin a life.</div><div class="toast" id="toast" role="status"></div><button id="exitArt" class="art-exit">Exit art view</button></section>
-<aside class="sidebar"><div><div class="label">Seeds of life</div><p style="font-size:28px;color:var(--gold);margin:0" aria-label="Unlimited seeds">∞</p><p class="small" id="seedStatus">Unlimited seeds · finite energy</p><div class="place-controls"><button id="left" aria-label="Move planting location anticlockwise">←</button><button id="plant" class="primary" disabled>Plant</button><button id="right" aria-label="Move planting location clockwise">→</button></div><div class="sanctuary-control"><div class="label">Sanctuary</div><button id="sanctuaryButton" disabled aria-pressed="false" title="Arm, or drag onto the world">Deploy · <span id="sanctuaryCount">0</span> ready</button><p class="small" id="sanctuaryStatus">Earn one per 150 energy created.</p></div></div>
-<div class="supply"><div class="label">Selected location</div><b id="location">Near the dawn stream</b><div class="row"><span>Nearby cloud</span><strong id="localEnergy">0.0</strong></div><div class="row"><span>Living support</span><strong id="support">0</strong></div><div class="row"><span>Possible growth</span><strong id="growth">0.34/s</strong></div><p class="small" style="margin-top:13px" id="embryoStatus">People help new souls gather. Open space gives each life more room to grow.</p></div>
-<div class="legend"><span><i class="empty"></i>Gathering a soul</span><span><i class="embryo"></i>Souled embryo</span><span><i></i>Living person</span><span><i class="sanctuary"></i>Sanctuary</span><span><i class="warning"></i>Sink warning</span><span><i class="sink"></i>Active sink</span><span><i class="tomb"></i>Tombstone</span></div></aside></div>
-<div class="under"><span id="balance">Pool 135.0 · sinks lost 0.0 · embryos lost 0.0</span><span>Space to pause · ← → then Enter to plant · F for art</span></div>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#081319">
+<title>Lifestream · A world worth tending</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body class="game-page">
+<main class="shell">
+  <section class="stage" id="stage" aria-label="Lifestream world">
+    <canvas id="world" tabindex="0" aria-label="World. Tap the band to plant. Arrow keys choose a location; Enter plants. Right-click or Control-click deploys an available sanctuary."></canvas>
+    <canvas id="omens" aria-hidden="true"></canvas>
+    <header class="game-hud" id="gameHud" aria-label="World progress">
+      <div class="masthead"><h1>Lifestream</h1><span id="runSeed">World 73</span></div>
+      <dl class="hud-stats">
+        <div><dt>Energy created</dt><dd id="energy">0.0</dd></div>
+        <div><dt>Lives completed</dt><dd id="completed">0</dd></div>
+        <div><dt>Gathering in</dt><dd id="time">3:11</dd></div>
+      </dl>
+    </header>
+    <p class="scene-message" id="stageStatus" hidden></p>
+    <div id="bossWarning" class="boss-warning" aria-hidden="true"><strong>Warning</strong><span>The world is destabilizing</span></div>
+    <div class="toast" id="toast" role="status"></div>
+    <nav class="game-controls" id="gameControls" aria-label="Game controls">
+      <button id="sanctuaryButton" class="sanctuary-button" disabled aria-pressed="false" title="Choose a sanctuary, or drag it onto the world"><span class="sanctuary-symbol" aria-hidden="true">✧</span><span>Sanctuary</span><span id="sanctuaryCount" class="inventory">0</span></button>
+      <button id="plant" class="plant-button" aria-label="Plant at the selected location">Plant</button>
+      <button id="pause" class="icon-button" aria-label="Pause" title="Pause" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><g class="pause-bars"><path d="M8 6v12M16 6v12"/></g><path class="play-triangle" d="m9 6 9 6-9 6Z"/></svg>
+      </button>
+      <button id="help" class="icon-button" aria-label="Menu and help" title="Menu and help"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/></svg></button>
+    </nav>
+    <button id="exitArt" class="art-exit">Exit art view</button>
+  </section>
 </main>
-<section class="overlay" id="welcome" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle"><div class="card"><div class="eyebrow">One world. One disturbance.</div><h2 id="welcomeTitle">Tend the lifestream.</h2><p>Begin lives around the world ring. Follow the moving cloud, shelter energy through living people, and help the world endure the disturbance.</p><div class="intro-steps"><div><b>Plant with care.</b> The first embryo needs 12 energy within 6 seconds. Later generations need more, but create more in return. Seeds are unlimited. Failed embryos destroy all energy they absorbed.</div><div><b>Read the current.</b> Crowded places offer support. Sparse places give successful lives more room to grow.</div><div><b>Weather the disturbance.</b> Gray warnings precede temporary sinks. A final ring of sinks tests the world before every remaining person is gathered in light.</div></div><div class="seed-input"><label for="worldSeed">World seed</label><input id="worldSeed" type="number" min="0" max="4294967295" step="1" value="73"></div><div class="actions"><button id="begin" class="primary">Choose the first life</button></div><p style="font-size:10px;margin-bottom:0">Create as much new energy as you can. Completed lives are a secondary result. Pause whenever you like.</p></div></section>
-<section class="overlay" id="helpOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="card"><div class="eyebrow">A few quiet rules</div><h2 id="helpTitle">Watch where life can grow.</h2><div class="help-grid"><p><b>Tap the inner ring</b> to plant. Move the pointer, or use the arrow controls, to inspect the supply at a location. Planting closes six seconds before gathering.</p><p><b>Souls fill gradually.</b> Embryos absorb nearby energy until they hold the requirement shown beside the seeds. The center fills as energy arrives; the outer arc shows time left. A filled embryo still develops for six seconds. Failed embryos destroy what they absorbed. Planting too many can make all of them fail.</p><p><b>Life advances.</b> As the world creates energy, new seeds require more soul energy and grow into larger, more productive people. Each generation keeps the traits it had when planted.</p><p><b>Space enriches life.</b> People create more energy when fewer others share their surroundings. Their glow reflects that growth; everyone still has a finite lifetime.</p><p><b>Create sanctuaries.</b> Every 150 energy created earns one persistent shield. Right-click or Control-click the world to deploy quickly, tap the Sanctuary button and then the world, or drag the button onto the world. A sanctuary neutralizes any sink touching its sparkling field, including partial overlaps; overlapping fields do not stack.</p><p><b>Violet means an active sink.</b> Gray arcs warn of arrival. Color drains in the final moment before activation. A flash marks activation; the black disk consumes unprotected cloud energy and the violet arc shows time left. Neutralized sinks remain gray. The outermost cloud is safe from sinks. Only embryos pull energy out of it; once between the planes, that energy is exposed. The cloud moves clockwise, faster near the outside.</p><p><b>After the final ring, calm returns.</b> The remaining people rise into the cloud, keep their remaining energy, and count as completed lives. Failed embryos do not count.</p><p><b>Your time is yours.</b> Space pauses; switching tabs pauses automatically. Art view hides the interface and continues at the current pace; Esc, F, or double-click exits.</p></div><div class="actions"><button id="closeHelp" class="primary">Back to the world</button></div></div></section>
-<section class="overlay" id="results" hidden role="dialog" aria-modal="true" aria-labelledby="resultsTitle"><div class="card"><div class="eyebrow">The world rests</div><h2 id="resultsTitle">What you helped continue.</h2><p id="resultsIntro">Every remaining life has joined the cloud in light.</p><div class="result-pair"><div class="result-stat"><label>Energy created</label><strong id="resultEnergy">0.0</strong><small id="bestEnergy">Personal best: 0.0</small></div><div class="result-stat"><label>Completed lives</label><strong id="resultLives">0</strong><small id="bestLives">Personal best: 0</small></div></div><p class="results-note" id="resultDetail"></p><p class="results-note" id="resultLedger"></p><div class="actions"><button id="replay" class="primary">Try this world again</button><button id="newWorld">Another world</button></div></div></section>
+
+<section class="overlay" id="helpOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+  <div class="card">
+    <div class="eyebrow">A world worth tending</div><h2 id="helpTitle">Follow the flow.</h2>
+    <div class="help-grid">
+      <p><b>Tap the band to begin a life.</b> Bright streams help a seed gather the energy it needs.</p>
+      <p><b>Give life room to grow.</b> People return energy to the cloud. Too many seeds in one place may struggle.</p>
+      <p><b>Shelter what matters.</b> Violet sinks consume cloud energy. When a sanctuary is ready, choose it, then tap where you want protection.</p>
+    </div>
+    <div class="menu-actions"><button id="closeHelp" class="primary">Back to the world</button><button id="art" aria-pressed="false">Art view</button><button id="chooseWorld">Choose a world</button></div>
+    <details id="worldDetails"><summary>World details</summary>
+      <dl class="details-stats"><div><dt>Living now</dt><dd id="population"></dd></div><div><dt>Next seed needs</dt><dd id="seedStatus"></dd></div><div><dt>Sanctuaries</dt><dd id="sanctuaryStatus"></dd></div><div><dt>Nearby energy</dt><dd id="localEnergy"></dd></div><div><dt>Potential growth here</dt><dd id="growth"></dd></div></dl>
+      <p class="small" id="balance"></p>
+    </details>
+    <details><summary>A few quiet rules</summary><div class="help-grid">
+      <p>Seeds have six seconds to gather a soul and develop. Failed seeds lose the energy they absorbed. Seeds are unlimited; energy is shared.</p>
+      <p>Every 150 energy created earns a lasting sanctuary. Tap to choose a location, or drag the Sanctuary button onto the world. Overlapping sinks are neutralized.</p>
+      <p>Planting closes six seconds before gathering. Every remaining person then returns to the cloud and counts as a completed life.</p>
+      <p>Use <kbd>←</kbd> <kbd>→</kbd> to choose a location and <kbd>Enter</kbd> to plant, or use the Plant button. <kbd>Space</kbd> pauses, <kbd>F</kbd> opens Art view, and <kbd>Esc</kbd> leaves it. Switching tabs pauses automatically. Desktop players can right-click or Control-click to deploy a sanctuary.</p>
+    </div></details>
+  </div>
+</section>
+
+<section class="overlay" id="welcome" hidden role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+  <div class="card"><div class="eyebrow">A fresh beginning</div><h2 id="welcomeTitle">Choose a world.</h2><p>The same seed brings the same world. Your choices shape its lives.</p>
+    <div class="seed-input"><label for="worldSeed">World seed</label><input id="worldSeed" type="number" min="0" max="4294967295" step="1" value="73"></div>
+    <div class="menu-actions"><button id="begin" class="primary">Start world</button><button id="cancelWorld">Go back</button></div>
+  </div>
+</section>
+
+<section class="overlay" id="results" hidden role="dialog" aria-modal="true" aria-labelledby="resultsTitle">
+  <div class="card"><div class="eyebrow">The world rests</div><h2 id="resultsTitle">Life carried on.</h2><p id="resultsIntro"></p>
+    <div class="result-pair"><div class="result-stat"><span>Energy created</span><strong id="resultEnergy">0.0</strong><small id="bestEnergy"></small></div><div class="result-stat"><span>Lives completed</span><strong id="resultLives">0</strong><small id="bestLives"></small></div></div>
+    <p class="small" id="resultDetail"></p><details><summary>Energy ledger</summary><p class="small" id="resultLedger"></p></details>
+    <div class="menu-actions"><button id="replay" class="primary">Play this world again</button><button id="newWorld">Another world</button></div>
+  </div>
+</section>
 <div id="announcements" class="sr-only" role="status" aria-live="polite"></div>
-<script type="module" src="./main.mjs"></script></body></html>
+<script type="module" src="./main.mjs"></script>
+</body>
+</html>

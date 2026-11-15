@@ -17,7 +17,23 @@ function resize(){
  if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
  if(omens.width!==width||omens.height!==height){omens.width=width;omens.height=height;}
  ctx.setTransform(d,0,0,d,0,0);ox.setTransform(d,0,0,d,0,0);
- cx=W/2;cy=H/2;outer=Math.min(W*.445,(H-(getState().artMode?25:90))*.5);inner=outer*.65;
+ const artMode=getState().artMode,hud=$('gameHud'),controls=$('gameControls');
+ cx=W/2;
+ if(!artMode&&hud&&controls){
+  const hudBounds=hud.getBoundingClientRect(),controlBounds=controls.getBoundingClientRect();
+  const top=hudBounds.bottom-b.top+24,bottom=controlBounds.top-b.top-24;
+  // The background spans the viewport, but the world shares the HUD's column.
+  // Include the outer current traces in the horizontal margin.
+  const left=Math.max(hudBounds.left,controlBounds.left)-b.left;
+  const right=Math.min(hudBounds.right,controlBounds.right)-b.left;
+  cx=(left+right)/2;cy=(top+bottom)/2;
+  outer=Math.max(12,Math.min((right-left)/2-12,(bottom-top)/2-8));
+ }else{
+  // Standalone profilers have no HUD; retain their established geometry.
+  cy=H/2;outer=Math.min(W*.445,(H-(artMode?25:90))*.5);
+ }
+ inner=outer*.65;
+ $('stage').style.setProperty('--world-center-y',cy+'px');
 }
 function point(theta,r){return{x:cx+Math.sin(theta)*r,y:cy-Math.cos(theta)*r};}
 function dot(x,y,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();}
@@ -35,7 +51,7 @@ function drawSanctuaryField(game,sanctuary,index,reduced,preview=false){
  ctx.restore();
 }
 function render(){
- const {game,selected,artMode,sanctuaryArmed,paused}=getState();
+ const {game,selected,artMode,sanctuaryArmed,paused,showTap=false,showSelection=true}=getState();
  ctx.clearRect(0,0,W,H);const gather=game.endingAt===null?0:clamp((game.t-game.endingAt)/3,0,1),reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
  paintCloud(game.q,gather);
  tc.putImageData(image,0,0);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(texture,cx-outer,cy-outer,outer*2,outer*2);
@@ -44,7 +60,7 @@ function render(){
  if(sanctuaryArmed&&game.canDeploySanctuary()&&!artMode)drawSanctuaryField(game,{theta:selected},game.sanctuaries.length,reduced,true);
  // Sparse current traces express the field's clockwise advection; not extra energy.
  for(let i=0;i<12;i++){const a=wrap(i/12*TAU+game.t*CONFIG.current/N*TAU),p=point(a,outer+6),a1=point(a-.022,outer+10),a2=point(a-.022,outer+2);ctx.beginPath();ctx.moveTo(a1.x,a1.y);ctx.lineTo(p.x,p.y);ctx.lineTo(a2.x,a2.y);ctx.strokeStyle='rgba(159,208,181,.25)';ctx.lineWidth=1;ctx.stroke();}
- if(!artMode){text('SOUL CLOUD · PROTECTED',cx,cy-outer-18,'#77998a',9);text('WORLD PLANE',cx,cy+inner-19,'#78968c',9);}
+ if(showTap&&!artMode){ctx.save();ctx.textBaseline='middle';text('Tap',cx,cy-(inner+outer)/2,'#f6ce91',18);ctx.restore();}
  // Boss physics and expiry stay synchronized. Only the visible entrances
  // advance around the ring; share their ages with the activation outlines.
  const visibleSinks=[];let bossIndex=0;
@@ -60,7 +76,7 @@ function render(){
   for(let n=0;n<3;n++){const a=game.t*.7+n*TAU/3;circle(p,r+9+n*2,neutralized?'rgba(168,184,180,.2)':'rgba(178,103,237,.25)',1,a,a+.65);}
  }
  for(const tomb of game.tombs){const p=point(tomb.theta,inner),a=Math.min(1,(8-(game.t-tomb.t))/2);ctx.save();ctx.translate(p.x,p.y);ctx.globalAlpha=a*.7;ctx.fillStyle=tomb.reason==='embryo'?'#827e89':'#819c90';ctx.beginPath();ctx.roundRect(-2.5,-4,5,7,[2.5,2.5,0,0]);ctx.fill();ctx.restore();}
- for(const pulse of game.pulses){const age=game.t-pulse.t;if(age>1.5)continue;const p=point(pulse.theta,inner),opacity=1-age/1.5,size=pulse.visualScale||1;circle(p,6*size+age*15,`rgba(255,221,157,${opacity*.7})`);if(!artMode&&age<1)text('Soul ready',p.x,p.y-13*size-age*9,`rgba(249,219,160,${opacity})`,9);}
+ for(const pulse of game.pulses){const age=game.t-pulse.t;if(age>1.5)continue;const p=point(pulse.theta,inner),opacity=1-age/1.5,size=pulse.visualScale||1;circle(p,6*size+age*15,`rgba(255,221,157,${opacity*.7})`);}
  for(const e of game.lives){
   const p=point(e.theta,inner),size=e.visualScale||1;
   if(e.state==='waiting'){
@@ -72,7 +88,7 @@ function render(){
    const phase=(game.t*.32+e.id*.23)%1,ret=point(e.theta,inner+phase*(outer-inner));dot(ret.x,ret.y,Math.min(1.2,.8*Math.sqrt(size)),`rgba(170,226,190,${.3*Math.sin(phase*Math.PI)})`);
   }
  }
- if(!isOverlayOpen()&&!artMode&&!game.finished&&game.endingAt===null){const p=point(selected,inner);circle(p,13,sanctuaryArmed?'rgba(130,242,218,.8)':game.canPlant()&&!paused?'rgba(207,235,182,.6)':'rgba(160,179,160,.25)',1);const a=point(selected,inner-22),b=point(selected,inner-17);ctx.strokeStyle=sanctuaryArmed?'#8fead8':'#c3d8ad';ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}
+ if(!isOverlayOpen()&&!artMode&&!game.finished&&game.endingAt===null&&showSelection){const p=point(selected,inner);circle(p,13,sanctuaryArmed?'rgba(130,242,218,.8)':game.canPlant()&&!paused?'rgba(207,235,182,.6)':'rgba(160,179,160,.25)',1);const a=point(selected,inner-22),b=point(selected,inner-17);ctx.strokeStyle=sanctuaryArmed?'#8fead8':'#c3d8ad';ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}
  if(game.endingAt!==null){
   const elapsed=game.t-game.endingAt;
   for(let n=0;n<(game.gathering||[]).length;n++){
@@ -120,5 +136,5 @@ function renderOmens(game,reduced,visibleSinks){
 }
 
 function selectionFromClient(clientX,clientY){const rect=canvas.getBoundingClientRect(),x=clientX-rect.left-cx,y=clientY-rect.top-cy,r=Math.hypot(x,y);if(r<inner*.65||r>outer+24)return null;return wrap(Math.atan2(y,x)+Math.PI/2);}
-return {canvas,resize,render,selectionFromClient};
+return {canvas,resize,render,selectionFromClient,get geometry(){return{cx,cy,inner,outer};}};
 }

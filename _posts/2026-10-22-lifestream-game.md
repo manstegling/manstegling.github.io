@@ -6,7 +6,12 @@ date: 2026-10-22 00:00:00 +0200
 
 **Lifestream** started with a thought: if reincarnation is real, where do all the extra souls come from as the population grows? I started designing a dynamic system to explore this question, and realised it could actually make for a fun game. So I introduced a disaster: an experiment gone horribly wrong, causing soul-eating wormholes to appear. Your job is to guide humanity through the crisis. The code is mostly AI-generated, but the fun isn't.
 
-[Play Lifestream]({{ '/games/lifestream/' | relative_url }}) — a run takes a few minutes, on desktop or mobile.
+Local-only and privacy-preserving.
+
+[Play Lifestream (stable)]({{ '/games/lifestream/' | relative_url }}) — a run takes a few minutes, on desktop or mobile.
+
+For the opportunistic, the current beta is located at [Play Lifestream (beta)]({{ '/games/lifestream-experimental/' | relative_url }})
+
 
 <!--end_intro-->
 
@@ -14,4 +19,4 @@ Embryos require soul energy to grow into people. Nearby people make starting a n
 
 The goal is to create as much new soul energy as possible before time runs out. Your first placement starts the clock, and you can pause whenever you like.
 
-This is a playable prototype, and I'm still experimenting with mechanics, balance and pacing. I will publish more information about the game mechanics and the thinking behind it soon.
+This is a playable prototype, and I'm still experimenting with mechanics.
