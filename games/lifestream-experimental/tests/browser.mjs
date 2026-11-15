@@ -187,6 +187,7 @@ try {
       assert(Math.abs(stage.height-height)<1 && Math.abs(stage.width-width)<1, `Playfield must fill ${width}x${height}`);
       assert(doc.documentElement.scrollWidth<=width+1 && doc.documentElement.scrollHeight<=height+1, `Game must not scroll at ${width}x${height}`);
       assert(g.cy-g.outer>=hud.bottom-stage.top && g.cy+g.outer<=controls.top-stage.top, `Ring must clear HUD and controls at ${width}x${height}`);
+      assert(Math.abs(g.inner/g.outer-.60)<1e-9, `World plane must keep its smaller display ratio at ${width}x${height}`);
       const left=Math.max(hud.left,controls.left)-stage.left,right=Math.min(hud.right,controls.right)-stage.left;
       assert(g.cx-g.outer-10>=left && g.cx+g.outer+10<=right, `World and current traces must stay inside the HUD column at ${width}x${height}`);
       assert(Math.abs(g.cx-(left+right)/2)<1, `World must align with the HUD center at ${width}x${height}`);

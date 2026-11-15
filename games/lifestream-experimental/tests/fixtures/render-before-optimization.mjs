@@ -1,5 +1,7 @@
-// Frozen renderer from commit 2d84360, for pixel equivalence and paired timings only.
+// Original rendering algorithms from 2d84360, adapted to the current display ratio
+// here in test code so production needs no historical-layout overrides.
 import {CONFIG, TAU, N, R, BOSS_START, wrap, delta, clamp} from '../../model.mjs';
+import {WORLD_PLANE_RATIO} from '../../cloud.mjs';
 
 // Browser-only presentation. Reads state; never advances the simulation.
 export function createRenderer({getState,isOverlayOpen}){
@@ -10,12 +12,12 @@ let W=0,H=0,cx=0,cy=0,inner=0,outer=0;
 const texture=document.createElement('canvas');texture.width=texture.height=320;
 const tc=texture.getContext('2d'),image=tc.createImageData(320,320),samples=[];
 for(let y=0;y<320;y++)for(let x=0;x<320;x++){
- const dx=(x+.5-160)/160,dy=(y+.5-160)/160,r=Math.hypot(dx,dy);if(r<=.65||r>=1)continue;
- const a=wrap(Math.atan2(dy,dx)+Math.PI/2)/TAU*N,i=Math.floor(a),fx=a-i,radial=(r-.65)/.35*(R+1)-1,j=Math.floor(radial),fy=radial-j;
+ const dx=(x+.5-160)/160,dy=(y+.5-160)/160,r=Math.hypot(dx,dy);if(r<=WORLD_PLANE_RATIO||r>=1)continue;
+ const a=wrap(Math.atan2(dy,dx)+Math.PI/2)/TAU*N,i=Math.floor(a),fx=a-i,radial=(r-WORLD_PLANE_RATIO)/(1-WORLD_PLANE_RATIO)*(R+1)-1,j=Math.floor(radial),fy=radial-j;
  const index=(row,col)=>row<0||row>=R?-1:row*N+col%N;
  samples.push([(y*320+x)*4,index(j,i),index(j,i+1),index(j+1,i),index(j+1,i+1),fx,fy]);
 }
-function resize(){const b=$('stage').getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);W=b.width;H=b.height;canvas.width=Math.round(W*d);canvas.height=Math.round(H*d);ctx.setTransform(d,0,0,d,0,0);omens.width=canvas.width;omens.height=canvas.height;ox.setTransform(d,0,0,d,0,0);cx=W/2;cy=H/2;outer=Math.min(W*.445,(H-(getState().artMode?25:90))*.5);inner=outer*.65;}
+function resize(){const b=$('stage').getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);W=b.width;H=b.height;canvas.width=Math.round(W*d);canvas.height=Math.round(H*d);ctx.setTransform(d,0,0,d,0,0);omens.width=canvas.width;omens.height=canvas.height;ox.setTransform(d,0,0,d,0,0);cx=W/2;cy=H/2;outer=Math.min(W*.445,(H-(getState().artMode?25:90))*.5);inner=outer*WORLD_PLANE_RATIO;}
 function point(theta,r){return{x:cx+Math.sin(theta)*r,y:cy-Math.cos(theta)*r};}
 function dot(x,y,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();}
 function circle(p,r,color,width=1,start=0,end=TAU){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.arc(p.x,p.y,r,start-Math.PI/2,end-Math.PI/2);ctx.stroke();}
@@ -36,7 +38,7 @@ function render(){
  ctx.clearRect(0,0,W,H);const q=game.q,ref=CONFIG.initial/N*.5,gather=game.endingAt===null?0:clamp((game.t-game.endingAt)/3,0,1),reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
  for(const [k,a,b,c,d,fx,fy] of samples){const lo=(a<0?0:q[a])*(1-fx)+(b<0?0:q[b])*fx,hi=(c<0?0:q[c])*(1-fx)+(d<0?0:q[d])*fx,mass=lo*(1-fy)+hi*fy;image.data[k]=Math.round(100+137*gather);image.data[k+1]=Math.round(228-8*gather);image.data[k+2]=Math.round(176-34*gather);image.data[k+3]=Math.round(220*(1-Math.exp(-mass/ref*1.4)));}
  tc.putImageData(image,0,0);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(texture,cx-outer,cy-outer,outer*2,outer*2);
- circle({x:cx,y:cy},outer,'rgba(133,190,166,.17)');circle({x:cx,y:cy},outer*(.65+.35*7.5/9),'rgba(161,215,201,.16)',1);circle({x:cx,y:cy},inner,'rgba(177,201,183,.23)');
+ circle({x:cx,y:cy},outer,'rgba(133,190,166,.17)');circle({x:cx,y:cy},outer*(WORLD_PLANE_RATIO+(1-WORLD_PLANE_RATIO)*7.5/9),'rgba(161,215,201,.16)',1);circle({x:cx,y:cy},inner,'rgba(177,201,183,.23)');
  for(let i=0;i<game.sanctuaries.length;i++)drawSanctuaryField(game,game.sanctuaries[i],i,reduced);
  if(sanctuaryArmed&&game.canDeploySanctuary()&&!artMode)drawSanctuaryField(game,{theta:selected},game.sanctuaries.length,reduced,true);
  // Sparse current traces express the field's clockwise advection; not extra energy.

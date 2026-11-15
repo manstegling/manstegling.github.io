@@ -1,5 +1,5 @@
 import {CONFIG, TAU, N, R, BOSS_START, wrap, delta, clamp} from './model.mjs';
-import {TEXTURE_SIZE, createCloudPainter} from './cloud.mjs';
+import {TEXTURE_SIZE, WORLD_PLANE_RATIO, createCloudPainter} from './cloud.mjs';
 
 // Browser-only presentation. Reads state; never advances the simulation.
 export function createRenderer({getState,isOverlayOpen}){
@@ -32,7 +32,7 @@ function resize(){
   // Standalone profilers have no HUD; retain their established geometry.
   cy=H/2;outer=Math.min(W*.445,(H-(artMode?25:90))*.5);
  }
- inner=outer*.65;
+ inner=outer*WORLD_PLANE_RATIO;
  $('stage').style.setProperty('--world-center-y',cy+'px');
 }
 function point(theta,r){return{x:cx+Math.sin(theta)*r,y:cy-Math.cos(theta)*r};}
@@ -55,7 +55,7 @@ function render(){
  ctx.clearRect(0,0,W,H);const gather=game.endingAt===null?0:clamp((game.t-game.endingAt)/3,0,1),reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
  paintCloud(game.q,gather);
  tc.putImageData(image,0,0);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(texture,cx-outer,cy-outer,outer*2,outer*2);
- circle({x:cx,y:cy},outer,'rgba(133,190,166,.17)');circle({x:cx,y:cy},outer*(.65+.35*7.5/9),'rgba(161,215,201,.16)',1);circle({x:cx,y:cy},inner,'rgba(177,201,183,.23)');
+ circle({x:cx,y:cy},outer,'rgba(133,190,166,.17)');circle({x:cx,y:cy},outer*(WORLD_PLANE_RATIO+(1-WORLD_PLANE_RATIO)*7.5/9),'rgba(161,215,201,.16)',1);circle({x:cx,y:cy},inner,'rgba(177,201,183,.23)');
  for(let i=0;i<game.sanctuaries.length;i++)drawSanctuaryField(game,game.sanctuaries[i],i,reduced);
  if(sanctuaryArmed&&game.canDeploySanctuary()&&!artMode)drawSanctuaryField(game,{theta:selected},game.sanctuaries.length,reduced,true);
  // Sparse current traces express the field's clockwise advection; not extra energy.

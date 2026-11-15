@@ -1,18 +1,18 @@
 import {CONFIG, N, R, TAU, wrap} from './model.mjs';
 
 export const TEXTURE_SIZE = 320;
+export const WORLD_PLANE_RATIO = .60;
 const half = TEXTURE_SIZE / 2;
 const littleEndian = new Uint8Array(new Uint32Array([0x01020304]).buffer)[0] === 4;
 
-// One shared flat table replaces thousands of small arrays and per-draw iterators.
-// Keep the original interpolation coordinates and operation order exactly.
+// One fixed table maps the game's texture pixels to simulation cells.
 const samples = (() => {
   const values = [];
   for (let y = 0; y < TEXTURE_SIZE; y++) for (let x = 0; x < TEXTURE_SIZE; x++) {
     const dx = (x + .5 - half) / half, dy = (y + .5 - half) / half, r = Math.hypot(dx, dy);
-    if (r <= .65 || r >= 1) continue;
+    if (r <= WORLD_PLANE_RATIO || r >= 1) continue;
     const a = wrap(Math.atan2(dy, dx) + Math.PI / 2) / TAU * N, i = Math.floor(a), fx = a - i;
-    const radial = (r - .65) / .35 * (R + 1) - 1, j = Math.floor(radial), fy = radial - j;
+    const radial = (r - WORLD_PLANE_RATIO) / (1 - WORLD_PLANE_RATIO) * (R + 1) - 1, j = Math.floor(radial), fy = radial - j;
     const index = (row, col) => row < 0 || row >= R ? -1 : row * N + col % N;
     values.push(y * TEXTURE_SIZE + x, index(j, i), index(j, i + 1), index(j + 1, i), index(j + 1, i + 1), fx, fy);
   }
