@@ -1,6 +1,16 @@
 import {CONFIG, TAU, N, R, BOSS_START, wrap, delta, clamp} from './model.mjs';
 import {TEXTURE_SIZE, WORLD_PLANE_RATIO, createCloudPainter} from './cloud.mjs';
 
+function sinkEntranceScale(age,reduced){
+ if(reduced||age>=CONFIG.sinkPopSettleTime)return 1;
+ if(age<CONFIG.sinkPopPeakTime){
+  const progress=clamp(age/CONFIG.sinkPopPeakTime,0,1);
+  return CONFIG.sinkWarningEnd+(CONFIG.sinkPopPeakScale-CONFIG.sinkWarningEnd)*(1-(1-progress)**3);
+ }
+ const progress=clamp((age-CONFIG.sinkPopPeakTime)/(CONFIG.sinkPopSettleTime-CONFIG.sinkPopPeakTime),0,1);
+ return 1+(CONFIG.sinkPopPeakScale-1)*(1-progress)**3;
+}
+
 // Browser-only presentation. Reads state; never advances the simulation.
 export function createRenderer({getState,isOverlayOpen}){
 const $=id=>document.getElementById(id);
@@ -71,7 +81,7 @@ function render(){
   if(age>=0)visibleSinks.push({sink,age});
  }
  for(const {sink,age} of visibleSinks){
-  const online=clamp(age/CONFIG.sinkActivationGrow,0,1),ease=1-(1-online)**3,scale=reduced?1:CONFIG.sinkWarningEnd+(1-CONFIG.sinkWarningEnd)*ease;
+  const scale=sinkEntranceScale(age,reduced);
   const p=point(sink.theta,inner+sink.fraction*(outer-inner)),r=outer*CONFIG.sinkRadius*scale,remaining=clamp((sink.end-game.t)/sink.duration,0,1),neutralized=sink.neutralized;
   const halo=ctx.createRadialGradient(p.x,p.y,r*.6,p.x,p.y,r*2.5);halo.addColorStop(0,neutralized?'rgba(168,181,178,.35)':'rgba(185,95,245,.48)');halo.addColorStop(1,neutralized?'rgba(90,105,102,0)':'rgba(85,30,130,0)');dot(p.x,p.y,r*2.5,halo);
   dot(p.x,p.y,r,neutralized?'#313a3a':'#030208');circle(p,r,neutralized?'#c3cecb':'#d5a5ff',2);circle(p,r+5,neutralized?'rgba(177,192,188,.2)':'rgba(171,117,214,.22)',2);circle(p,r+5,neutralized?'#aebbb8':'#ce92fb',2.5,0,TAU*remaining);
@@ -124,16 +134,20 @@ function renderOmens(game,reduced,visibleSinks){
  const drainValue=drain.toFixed(3);if(drainValue!==lastDrain){document.body.style.setProperty('--drain',drainValue);lastDrain=drainValue;}
  for(const s of warnings){
   const progress=clamp((game.t-s.warningAt)/(s.start-s.warningAt),0,1),ease=progress*progress*(3-2*progress),scale=reduced?CONFIG.sinkWarningEnd:CONFIG.sinkWarningStart+(CONFIG.sinkWarningEnd-CONFIG.sinkWarningStart)*ease;
-  const p=point(s.theta,inner+s.fraction*(outer-inner)),r=outer*CONFIG.sinkRadius*scale,remaining=1-progress;
+  const p=point(s.theta,inner+s.fraction*(outer-inner)),r=outer*CONFIG.sinkRadius*scale,until=s.start-game.t;
   const glow=ox.createRadialGradient(p.x,p.y,0,p.x,p.y,r*2.5);glow.addColorStop(0,'rgba(190,200,198,.24)');glow.addColorStop(1,'rgba(150,160,159,0)');ox.fillStyle=glow;ox.beginPath();ox.arc(p.x,p.y,r*2.5,0,TAU);ox.fill();
   ox.fillStyle='rgba(118,127,127,.3)';ox.beginPath();ox.arc(p.x,p.y,r,0,TAU);ox.fill();
-  ox.lineWidth=2;ox.strokeStyle='#aeb8b7';ox.setLineDash([3,4]);ox.beginPath();ox.arc(p.x,p.y,r,-Math.PI/2,TAU*remaining-Math.PI/2);ox.stroke();ox.setLineDash([]);
-  ox.font='bold '+Math.max(9,18*scale)+'px system-ui';ox.textAlign='center';ox.fillStyle='#d3d9d7';ox.fillText('!',p.x,p.y+Math.max(3,6*scale));
+  // Grow quietly first; the solid arrival countdown appears only for the configured final seconds.
+  if(until<=CONFIG.sinkWarningCountdown){
+   ox.lineWidth=2;ox.strokeStyle='rgba(174,184,183,.18)';ox.beginPath();ox.arc(p.x,p.y,r+5,0,TAU);ox.stroke();
+   const remaining=clamp(until/CONFIG.sinkWarningCountdown,0,1);
+   ox.lineWidth=2.5;ox.strokeStyle='#aeb8b7';ox.beginPath();ox.arc(p.x,p.y,r+5,-Math.PI/2,TAU*remaining-Math.PI/2);ox.stroke();
+  }
  }
  if(game.endingAt===null){
   // One soft violet-white flash; no repeated strobe. Reduced motion omits it.
   if(!reduced&&since>=0&&since<.22&&game.sinks.some(s=>!s.neutralized&&game.t-s.start<CONFIG.sinkActivationGrow)){ox.fillStyle='rgba(233,216,255,'+(.34*(1-since/.22)**2)+')';ox.fillRect(0,0,W,H);}
-  for(const {sink:s,age} of visibleSinks)if(age<CONFIG.sinkActivationGrow){const p=point(s.theta,inner+s.fraction*(outer-inner)),f=age/CONFIG.sinkActivationGrow,ease=1-(1-f)**3,scale=reduced?1:CONFIG.sinkWarningEnd+(1-CONFIG.sinkWarningEnd)*ease;ox.strokeStyle=s.neutralized?'rgba(205,216,213,'+(1-f)+')':'rgba(238,210,255,'+(1-f)+')';ox.lineWidth=2;ox.beginPath();ox.arc(p.x,p.y,outer*CONFIG.sinkRadius*scale+(reduced?0:f*35),0,TAU);ox.stroke();}
+  for(const {sink:s,age} of visibleSinks)if(age<CONFIG.sinkActivationGrow){const p=point(s.theta,inner+s.fraction*(outer-inner)),f=age/CONFIG.sinkActivationGrow,scale=sinkEntranceScale(age,reduced);ox.strokeStyle=s.neutralized?'rgba(205,216,213,'+(1-f)+')':'rgba(238,210,255,'+(1-f)+')';ox.lineWidth=2;ox.beginPath();ox.arc(p.x,p.y,outer*CONFIG.sinkRadius*scale+(reduced?0:f*35),0,TAU);ox.stroke();}
  }
 }
 

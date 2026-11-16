@@ -1,14 +1,13 @@
 // Optional differential regression/benchmark against a supplied pre-optimization model.
 import assert from 'node:assert/strict';
-import {createHash} from 'node:crypto';
 import {resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {Model, DT} from '../model.mjs';
-import {state, checkEnergy} from './replay-core.mjs';
+import {checkEnergy} from './replay-core.mjs';
+import {hashState as hash} from './replay.mjs';
 
 if (!process.argv[2]) throw new Error('Usage: node benchmark-model.mjs ORIGINAL_MODEL_MJS');
 const {Model: BeforeModel} = await import(pathToFileURL(resolve(process.argv[2])));
-const hash = model => createHash('sha256').update(JSON.stringify(state(model))).digest('hex');
 const results = [];
 for (const seed of [0, 1, 73, 4294967295]) {
   const before = new BeforeModel(seed), after = new Model(seed);

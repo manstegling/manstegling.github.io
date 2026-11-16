@@ -1,6 +1,6 @@
 // Deterministic simulation. No DOM, canvas, wall clock, or persistence dependencies.
 const TAU=Math.PI*2, N=144, R=8, DT=1/60, CAP=250;
-const CONFIG=Object.freeze({sunrise:17,disturbance:160,sunset:14,initial:135,chunk:12,maturity:6,lifespan:100,growthMin:.12,growthMax:.34,crowdingScale:1.4,neighbourhood:.24,intakeRate:8,absorptionRate:6,advancementEnergy:500,chunkExponent:.9,growthExponent:.45,lifespanExponent:.15,maxVisualScale:1.7,warning:20,current:1.35,diffusion:.18,sinkPull:.92,sinkPullWidth:.18,sinkRadius:.075,sinkWarningStart:.24,sinkWarningEnd:.68,sinkActivationGrow:.4,lateSinkFractions:Object.freeze([.64,.77,.8]),sanctuaryCost:150,sanctuaryHalfWidth:.3054,bossCount:16,bossInterval:.03,bossDuration:7,bossFraction:.46,bossWarningLead:6,bossMessageDuration:2.4});
+const CONFIG=Object.freeze({sunrise:17,disturbance:160,sunset:14,initial:135,chunk:12,maturity:6,lifespan:100,growthMin:.12,growthMax:.34,crowdingScale:1.4,neighbourhood:.24,intakeRate:8,absorptionRate:6,advancementEnergy:500,chunkExponent:.9,growthExponent:.45,lifespanExponent:.15,maxVisualScale:1.7,warning:20,current:1.35,diffusion:.18,sinkPull:.92,sinkPullWidth:.18,sinkRadius:.075,sinkWarningStart:.24,sinkWarningEnd:.68,sinkActivationGrow:.4,sinkPopPeakTime:.03,sinkPopSettleTime:.24,sinkPopPeakScale:1.44,sinkWarningCountdown:3,lateSinkFractions:Object.freeze([.64,.77,.8]),sanctuaryCost:150,sanctuaryHalfWidth:.3054,bossCount:16,bossInterval:.04,bossDuration:7,bossFraction:.46,bossWarningLead:6,bossMessageDuration:2.4});
 const TOTAL_TIME=CONFIG.sunrise+CONFIG.disturbance+CONFIG.sunset,BOSS_START=CONFIG.sunrise+CONFIG.disturbance-CONFIG.bossDuration;
 const DEFAULTS={chunk:CONFIG.chunk,lifespan:CONFIG.lifespan,attraction:1,gravity:.36,diffusion:CONFIG.diffusion,maturity:CONFIG.maturity,sinkPull:CONFIG.sinkPull};
 const wrap=a=>((a%TAU)+TAU)%TAU;
@@ -68,7 +68,7 @@ class Model {
   this.sinkSchedule.sort((a,b)=>a.start-b.start);for(let i=0;i<this.sinkSchedule.length;i++)this.sinkSchedule[i].id=i+1;
   for(let i=0;i<CONFIG.bossCount;i++){
    const fraction=CONFIG.bossFraction;
-   this.sinkSchedule.push({id:this.sinkSchedule.length+1,boss:true,theta:wrap(-i/CONFIG.bossCount*TAU),fraction,layer:fraction*(R+1)-1,warningAt:stop+i*CONFIG.bossInterval,start:bossStart,end:bossEnd,duration:CONFIG.bossDuration,destroyed:0});
+   this.sinkSchedule.push({id:this.sinkSchedule.length+1,boss:true,theta:wrap(-i/CONFIG.bossCount*TAU),fraction,layer:fraction*(R+1)-1,warningAt:bossWarningAt,start:bossStart,end:bossEnd,duration:CONFIG.bossDuration,destroyed:0});
   }
  }
  phase(){return this.t<CONFIG.sunrise?'Sunrise':this.t<CONFIG.sunrise+CONFIG.disturbance?'Disturbance':this.t<TOTAL_TIME?'Sunset':'Gathering';}

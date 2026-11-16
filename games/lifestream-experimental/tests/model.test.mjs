@@ -20,9 +20,20 @@ function soul(model, life, energy = life.chunk) {
   model.initial += energy;
 }
 
-test('baseline configuration is unchanged', async () => {
+test('simulation configuration is unchanged; sink presentation settings are shared', async () => {
   const baseline = await readJSON(fixtureURL('seed-73.baseline.json'));
-  assert.deepEqual(CONFIG, baseline.provenance.config);
+  const {bossInterval, sinkPopPeakTime, sinkPopSettleTime, sinkPopPeakScale, sinkWarningCountdown, ...simulation} = CONFIG;
+  const {bossInterval: originalInterval, ...originalSimulation} = baseline.provenance.config;
+  assert.deepEqual(simulation, originalSimulation);
+  assert.ok(sinkPopPeakTime > 0 && sinkPopPeakTime < bossInterval);
+  assert.ok(bossInterval < sinkPopSettleTime && sinkPopPeakScale > 1);
+  assert.ok(sinkWarningCountdown > 0 && sinkWarningCountdown <= CONFIG.warning);
+  const boss = new Model().sinkSchedule.filter(s => s.boss);
+  for (const sink of boss) {
+    assert.equal(sink.warningAt, BOSS_START - CONFIG.bossWarningLead);
+    assert.equal(sink.start, BOSS_START);
+    assert.equal(sink.end, CONFIG.sunrise + CONFIG.disturbance);
+  }
 });
 
 test('full seed-73 replay matches original snapshots, events and complete-state hashes', async () => {

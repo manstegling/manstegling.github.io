@@ -31,10 +31,12 @@ try {
     const warning = document.getElementById('bossWarning').style.cssText;
     const drain = document.body.style.getPropertyValue('--drain');
     after.render(); const actual = pixels(['world', 'omens'].map(id => document.getElementById(id)));
-    // The later boss-entrance fix intentionally changes this brief interval.
-    // Its draw counts/timing are covered by browser.mjs; all other pixels stay exact.
-    const sequencing = model.t >= BOSS_START && model.t < BOSS_START + (CONFIG.bossCount - 1) * CONFIG.bossInterval + CONFIG.sinkActivationGrow;
-    if (sequencing) intentionalVisualChanges++;
+    // Warning countdowns and pop entrances intentionally differ from the old art.
+    // browser.mjs checks their actual arcs, radii and timing; settled scenes stay exact.
+    const bossEntrance = model.t >= BOSS_START && model.t < BOSS_START + (CONFIG.bossCount - 1) * CONFIG.bossInterval + CONFIG.sinkActivationGrow;
+    const ordinaryEntrance = model.sinks.some(s => !s.boss && model.t - s.start < CONFIG.sinkActivationGrow);
+    const changedCues = model.warnings().length > 0 || bossEntrance || ordinaryEntrance;
+    if (changedCues) intentionalVisualChanges++;
     else {
       for (let c = 0; c < reference.length; c++) for (let i = 0; i < reference[c].length; i++) {
         if (reference[c][i] !== actual[c][i]) throw new Error(`Pixel mismatch at tick ${tick}, canvas ${c}, byte ${i}: ${reference[c][i]} vs ${actual[c][i]}`);

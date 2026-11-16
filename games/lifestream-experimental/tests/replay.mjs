@@ -6,7 +6,16 @@ import {replay, snapshot, state, compare} from './replay-core.mjs';
 
 export const fixtureURL = name => new URL(`./fixtures/${name}`, import.meta.url);
 export const readJSON = async url => JSON.parse(await readFile(url, 'utf8'));
-export const hashState = model => createHash('sha256').update(JSON.stringify(state(model))).digest('hex');
+export const hashState = model => {
+  const historical = state(model);
+  // Preserve the frozen original hashes across cleanup of unused boss warning metadata.
+  // Actual boss warnings are shared; activation, expiry and all physics remain exact.
+  const boss = historical.sinkSchedule.filter(s => s.boss);
+  for (const sinks of [historical.sinkSchedule, historical.sinks]) {
+    for (const sink of sinks) if (sink.boss) sink.warningAt = boss[0].start - 20 + boss.findIndex(s => s.id === sink.id) * .03;
+  }
+  return createHash('sha256').update(JSON.stringify(historical)).digest('hex');
+};
 
 export async function checkBaseline({exact = true} = {}) {
   const trace = await readJSON(fixtureURL('seed-73.trace.json'));

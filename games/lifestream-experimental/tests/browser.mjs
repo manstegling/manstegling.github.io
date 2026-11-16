@@ -253,49 +253,87 @@ try {
   compare(snapshot(run.model, run.finalTick), baseline.final);
   passed('browser replay matches original Node baseline within documented float tolerances');
   passed('renderer leaves complete simulation state unchanged at all 17 checkpoints');
-  // Count actual sink disks/outlines drawn, including the stagger's last arrivals.
+  // Observe actual drawing calls rather than exposing animation helpers in the game.
   scene = new win.LifestreamGame.Model(73);
   const context = doc.getElementById('world').getContext('2d');
   const omenContext = doc.getElementById('omens').getContext('2d');
-  const originalFill = context.fill, originalStroke = omenContext.stroke;
-  let disks = 0, outlines = 0;
+  const originals = {fill: context.fill, arc: context.arc, omenFill: omenContext.fill, omenArc: omenContext.arc, stroke: omenContext.stroke};
+  let disks = 0, outlines = 0, diskRadii = [], warningRadii = [], countdownSweeps = [];
+  let worldRadius = 0, omenArc;
+  context.arc = function(x,y,r,...args) { worldRadius=r; return originals.arc.call(this,x,y,r,...args); };
   context.fill = function(...args) {
-    if (this.fillStyle === '#030208' || this.fillStyle === '#313a3a') disks++;
-    return originalFill.apply(this, args);
+    if (this.fillStyle === '#030208' || this.fillStyle === '#313a3a') { disks++; diskRadii.push(worldRadius); }
+    return originals.fill.apply(this,args);
   };
-  omenContext.stroke = function(...args) { outlines++; return originalStroke.apply(this, args); };
+  omenContext.arc = function(x,y,r,start,end,...args) { omenArc={r,start,end}; return originals.omenArc.call(this,x,y,r,start,end,...args); };
+  omenContext.fill = function(...args) {
+    if(typeof this.fillStyle==='string' && this.fillStyle.replace(/\s/g,'')==='rgba(118,127,127,0.3)') warningRadii.push(omenArc.r);
+    return originals.omenFill.apply(this,args);
+  };
+  omenContext.stroke = function(...args) {
+    outlines++;
+    if(this.strokeStyle==='#aeb8b7') countdownSweeps.push(omenArc.end-omenArc.start);
+    return originals.stroke.apply(this,args);
+  };
   const {CONFIG} = win.LifestreamGame;
-  const bossStart = CONFIG.sunrise + CONFIG.disturbance - CONFIG.bossDuration;
-  const firstWarning = bossStart - CONFIG.bossWarningLead;
-  const checkAppearance = (time, expected, expectedOutlines) => {
-    scene.t = time; scene.updateSinks(); disks = 0; outlines = 0;
+  const interval=CONFIG.bossInterval,countdown=CONFIG.sinkWarningCountdown,bossStart=CONFIG.sunrise+CONFIG.disturbance-CONFIG.bossDuration;
+  const firstWarning=bossStart-CONFIG.bossWarningLead;
+  const fullRadius=renderer.geometry.outer*CONFIG.sinkRadius;
+  const checkAppearance = (time,expected,expectedOutlines) => {
+    scene.t=time; scene.updateSinks(); disks=0; outlines=0; diskRadii=[]; warningRadii=[]; countdownSweeps=[];
     renderer.render();
-    assert(disks === expected, `Expected ${expected} boss disks at ${time}, got ${disks}`);
-    if (expectedOutlines !== undefined) assert(outlines === expectedOutlines, `Expected ${expectedOutlines} activation outlines at ${time}, got ${outlines}`);
+    assert(disks===expected, `Expected ${expected} sink disks at ${time}, got ${disks}`);
+    if(expectedOutlines!==undefined) assert(outlines===expectedOutlines, `Expected ${expectedOutlines} outlines at ${time}, got ${outlines}`);
+    return diskRadii;
   };
   try {
-    checkAppearance(firstWarning, 0);
-    assert(doc.getElementById('bossWarning').style.visibility === 'visible', 'Boss must retain the single shared warning');
-    checkAppearance(bossStart - .001, 0);
-    checkAppearance(bossStart, 1, 1);
-    checkAppearance(bossStart + CONFIG.bossInterval - 1e-6, 1);
-    checkAppearance(bossStart + CONFIG.bossInterval, 2);
-    checkAppearance(bossStart + 7.5 * CONFIG.bossInterval, 8);
-    checkAppearance(bossStart + 15 * CONFIG.bossInterval - 1e-6, 15);
-    checkAppearance(bossStart + 15 * CONFIG.bossInterval, 16);
-    checkAppearance(bossStart + .71, 16, 5);
-    checkAppearance(bossStart + 1, 16, 0);
-    checkAppearance(CONFIG.sunrise + CONFIG.disturbance - .001, 16);
-    checkAppearance(CONFIG.sunrise + CONFIG.disturbance, 0, 0);
-    const matchMedia = win.matchMedia;
+    const ordinary=scene.sinkSchedule[0];
+    checkAppearance(ordinary.warningAt,0,0);
+    const smallWarning=warningRadii[0];
+    checkAppearance(ordinary.start-countdown-.001,0,0);
+    assert(warningRadii.length===1 && warningRadii[0]>smallWarning, 'Gray warning disc must grow without an early countdown');
+    checkAppearance(ordinary.start-countdown,0,2);
+    assert(Math.abs(countdownSweeps[0]-Math.PI*2)<1e-9, 'Arrival ring must begin full at the configured countdown duration');
+    assert(omenContext.getLineDash().length===0, 'Arrival countdown must be a solid line');
+    checkAppearance(ordinary.start-countdown/2,0,2);
+    assert(Math.abs(countdownSweeps[0]-Math.PI)<1e-9, 'Arrival countdown must be half empty halfway through its duration');
+    checkAppearance(ordinary.start-.001,0,2);
+    assert(countdownSweeps[0]<.01, 'Arrival countdown must empty at activation');
+    const ordinaryPeak=checkAppearance(ordinary.start+CONFIG.sinkPopPeakTime,1)[0]/fullRadius;
+    const ordinaryRetracting=checkAppearance(ordinary.start+interval,1)[0]/fullRadius;
+    assert(Math.abs(ordinaryPeak-CONFIG.sinkPopPeakScale)<1e-6 && ordinaryRetracting>1 && ordinaryRetracting<ordinaryPeak, 'Ordinary sinks must overshoot and retract');
+    assert(Math.abs(checkAppearance(ordinary.start+CONFIG.sinkPopSettleTime,1)[0]/fullRadius-1)<1e-6, 'Ordinary sinks must settle at their normal size');
+
+    checkAppearance(firstWarning,0);
+    assert(doc.getElementById('bossWarning').style.visibility==='visible', 'Boss must retain its single shared warning');
+    checkAppearance(bossStart-.001,0);
+    checkAppearance(bossStart,1,1);
+    assert(checkAppearance(bossStart+CONFIG.sinkPopPeakTime/2,1)[0]>fullRadius, 'Boss sink must pass full size before the next entrance');
+    const peak=checkAppearance(bossStart+CONFIG.sinkPopPeakTime,1)[0];
+    assert(Math.abs(peak/fullRadius-CONFIG.sinkPopPeakScale)<1e-6, 'Boss sink must reach its intended overshoot');
+    assert(checkAppearance(bossStart+interval-.001,1)[0]<peak, 'Boss sink must start retracting before the next entrance');
+    for(let i=1;i<CONFIG.bossCount;i++) {
+      const radii=checkAppearance(bossStart+i*interval,i+1);
+      assert(radii[i-1]>fullRadius && radii[i-1]<peak, `Sink ${i} must already be retracting when the next sink appears`);
+    }
+    const lastEntrance=bossStart+(CONFIG.bossCount-1)*interval;
+    checkAppearance(lastEntrance+CONFIG.sinkActivationGrow-interval/2,CONFIG.bossCount,1);
+    checkAppearance(lastEntrance+Math.max(CONFIG.sinkActivationGrow,CONFIG.sinkPopSettleTime)+.001,CONFIG.bossCount,0);
+    assert(Math.abs(diskRadii[0]-fullRadius)<1e-6, 'Settled boss disks must keep their normal size');
+    checkAppearance(CONFIG.sunrise+CONFIG.disturbance-.001,16);
+    checkAppearance(CONFIG.sunrise+CONFIG.disturbance,0,0);
+    const matchMedia=win.matchMedia;
     try {
-      win.matchMedia = () => ({matches: true});
-      checkAppearance(bossStart, 1);
-      checkAppearance(bossStart + 7.5 * CONFIG.bossInterval, 8);
-      checkAppearance(CONFIG.sunrise + CONFIG.disturbance, 0);
-    } finally { win.matchMedia = matchMedia; }
-  } finally { context.fill = originalFill; omenContext.stroke = originalStroke; }
-  passed('boss disks enter every 30 ms with shared warning/expiry, including reduced motion and late activation outlines');
+      win.matchMedia=()=>({matches:true});
+      assert(Math.abs(checkAppearance(bossStart+CONFIG.sinkPopPeakTime/2,1)[0]-fullRadius)<1e-6, 'Reduced motion must omit overshoot');
+      checkAppearance(bossStart+7.5*interval,8);
+      checkAppearance(CONFIG.sunrise+CONFIG.disturbance,0);
+    } finally { win.matchMedia=matchMedia; }
+  } finally {
+    context.fill=originals.fill; context.arc=originals.arc;
+    omenContext.fill=originals.omenFill; omenContext.arc=originals.omenArc; omenContext.stroke=originals.stroke;
+  }
+  passed(`sink pops overshoot and settle using CONFIG; boss entrances are ${interval*1000} ms apart; arrival countdown lasts ${countdown} seconds`);
   const summarize = values => {
     const sorted = [...values].sort((a, b) => a - b);
     return {count: values.length, medianMs: sorted[Math.ceil(sorted.length * .5) - 1], p95Ms: sorted[Math.ceil(sorted.length * .95) - 1], p99Ms: sorted[Math.ceil(sorted.length * .99) - 1]};
